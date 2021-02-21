@@ -135,10 +135,26 @@ session_start();
                 });
             }
             $().ready(function () {
-                $("input").change(function(){
+                $("input").change(function() {
                     invalidate();
                 });
+                $("#sizeX").change(function() {
+                    $("#sizeY").val(Math.round($("#sizeX").val() / whRatio));
+                    invalidate();
+                });
+                $("#sizeY").change(function() {
+                    $("#sizeX").val(Math.round($("#sizeY").val() * whRatio));
+                    invalidate();
+                });
+                $("#sizeX").val(Math.round($("#sizeY").val() * whRatio));
             });
+            <?php
+            if (isset($_SESSION["filename"])) {
+                $sourceImagePath = $_SESSION["filename"] . "." . $_SESSION["ext"];
+                list($w, $h) = getimagesize($sourceImagePath);
+                echo "var whRatio = " . ($w/$h);
+            }
+            ?>
         </script>
     </head>
     <body>
