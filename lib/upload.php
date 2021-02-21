@@ -1,6 +1,24 @@
 <?php
 
+function cleanupOldUploads() {
+    $handle = opendir('uploads');
+    while (false !== ($entry = readdir($handle))) {
+        if ($entry == "." || $entry == "..") {
+            continue;
+        }
+        $parts = explode("-", $entry);
+        $date = $parts[0];
+        if ($date < (new DateTime())->getTimestamp() - 5 * 3600) {
+            // Remove items older than 5 hours
+            unlink("uploads/$entry");
+        }
+    }
+    closedir($handle);
+}
+
 if (isset($_FILES['image']['name'])) {
+    cleanupOldUploads();
+
     switch ($_FILES['image']['type']) {
         case "image/gif":
             $ext = "gif";
