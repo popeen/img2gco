@@ -1,6 +1,16 @@
 <form method="post" action="generator.php" id="parameters">
     <table class="params">
         <tr>
+            <td>Size [mm]</td>
+            <td><span class="halfLabel">w: </span><input type="number" value="0" name="sizeX" id="sizeX" class="half"/><span class="halfLabel">h: </span><input type="number" value="50" name="sizeY" id="sizeY" class="half"/></td>
+            <td>Set the size of the resulting image.</td>
+        </tr>
+        <tr>
+            <td>Start position [mm]</td>
+            <td><span class="halfLabel">x: </span><input type="number" value="0" name="offsetX" class="half"/><span class="halfLabel">y: </span><input type="number" value="0" name="offsetY" class="half"/></td>
+            <td>Position to start image from. Corresponds to the <strong>top right</strong> of the image.</td>
+        </tr>
+        <tr>
             <td>Laser Min Power [0-255]</td>
             <td><input type="number" value="40" name="LaserMin"/></td>
             <td>This is the laser power that corresponds to WHITE. Set it just below where it makes a mark on your given material</td>
@@ -36,11 +46,6 @@
             <td>This sets a 'blank' distance before the start of the line to give the belts time to settle down and the motors to reach constant speed.</td>
         </tr>
         <tr>
-            <td>Size [mm]</td>
-            <td><span class="halfLabel">w: </span><input type="number" value="0" name="sizeX" id="sizeX" class="half"/><span class="halfLabel">h: </span><input type="number" value="50" name="sizeY" id="sizeY" class="half"/></td>
-            <td>Set the size of the resulting image.</td>
-        </tr>
-        <tr>
             <td>Horizontal Resolution [mm/pixel]</td>
             <td><input type="text" value="0.1" name="resX"/></td>
             <td>mm between pixels. If you make this larger you can attain faster speeds, but at the price of some detail loss. 0.1 is really amazing 0.15 is nearly so. 0.2 starts to look a little fuzzy. Beyond that you will probably see pixelization.</td>
@@ -49,11 +54,6 @@
             <td>Scangap [mm/line]</td>
             <td><input type="text" value="0.1" name="scanGap"/></td>
             <td>This is the distance between lines which is a function of your laser spot size. You need to make this small enough so there aren't visible unburned lines. For my laser this is 0.05 though I can usually get away with 0.075 because its faster. 0.1 leaves visible lines, which is kind of a cool effect. You can try to defocus your laser to make thicker lines for shorter overall total time, but you will have to increase your power. Note that if lines start to overlap you might need to bring your power down slightly.</td>
-        </tr>
-        <tr>
-            <td>Start position [mm]</td>
-            <td><span class="halfLabel">x: </span><input type="number" value="0" name="offsetX" class="half"/><span class="halfLabel">y: </span><input type="number" value="0" name="offsetY" class="half"/></td>
-            <td>Position to start image from. Corresponds to the <strong>top right</strong> of the image.</td>
         </tr>
     </table>
 </form>
