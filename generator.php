@@ -64,8 +64,12 @@ imagefilter($tmp,IMG_FILTER_GRAYSCALE);
 
 if ($_POST["code"] == "reprap") {
     $writer = new ReprapWriter();
-} else {
+} else if ($_POST["code"] == "grbl") {
     $writer = new GrblWriter();
+} else if ($_POST["code"] == "svg") {
+    $writer = new SvgWriter();
+} else {
+    exit("Unknown code flavour");
 }
 
 $writer->comment("Created using Nebarnix's IMG2GCO program Ver 1.0");
@@ -189,12 +193,14 @@ $writer->laserOff();
 $writer->useFastMoves();
 $writer->moveTo(0, 0);
 
-file_put_contents($_SESSION["filename"] . ".gcode", $writer->getGeneratedCode());
+$ext = ".gcode";
+if ($_POST["code"] == "svg") {
+    $ext = ".svg";
+}
+file_put_contents($_SESSION["filename"] . $ext, $writer->getGeneratedCode());
 
 if ($ajax == false) {
     // Script should return content directly
     header("Content-Disposition: attachment; filename=" . $_FILES['image']['name'] . ".gcode");
     echo $writer->getGeneratedCode();
-} else {
-
 }

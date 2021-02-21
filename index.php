@@ -8,6 +8,7 @@ session_start();
         <style>
             * {
                 font-family: sans-serif;
+                box-sizing: border-box;
             }
             body {
                 max-width: 1000px;
@@ -45,9 +46,11 @@ session_start();
                 border: none;
                 padding: 10px 50px;
                 margin: auto;
+                margin-top: 5px;
                 display: block;
-                margin-top: 10px;
                 cursor: pointer;
+                text-decoration: none;
+                text-align: center;
             }
             input[type = submit]:hover, .button:hover {
                 background: #990000;
@@ -63,16 +66,24 @@ session_start();
                 width: auto;
             }
             img {
-                max-width: 200px;
+                height: 300px;
+            }
+            #generateProgress {
+                margin: 10px auto;
+                display: none;
+                text-align: center;
+                background: #ffcccc;
+                padding: 10px;
+                width: 100px;
             }
         </style>
         <script src="http://code.jquery.com/jquery-3.5.1.min.js"></script>
         <script>
-            function submitParamsAjax(event) {
+            function generate(code) {
                 var data = $("#parameters").serialize();
-                data = data + "&ajax=true";
-                console.log(data);
+                data = data + "&ajax=true&code=" + code;
                 $("#submit").prop("disabled", true);
+                $("#generateProgress").show(200);
                 $.ajax({
                     type: "POST",
                     url: "generator.php",
@@ -85,18 +96,14 @@ session_start();
                     }, success: function(data) {
                         $("#generateProgress").text("");
                         window.location.href = "index.php"; // php shows download link
+                        $("#generateProgress").hide(200);
                     }, error: function (jqXHR, textStatus, errorThrown) {
                         $("#generateProgress").text("");
                         $("#submit").prop("disabled", false);
+                        $("#generateProgress").hide(200);
                     }
                 });
-                event.preventDefault();
-                return false;
             }
-            $().ready(function() {
-                var parameters = document.getElementById('parameters');
-                parameters.addEventListener('submit', submitParamsAjax);
-            });
         </script>
     </head>
     <body>
@@ -110,8 +117,8 @@ session_start();
             include("templates/form-params.html");
         } else {
             include("templates/form-upload.html");
+            include("templates/about.html");
         }
-        include("templates/about.html");
 
         ?>
     </body>

@@ -1,7 +1,4 @@
 <form method="post" action="generator.php" id="parameters">
-    <div id="generateProgress" style="text-align: center;"></div>
-    <input type="submit" value='Generate gcode' id="submit" />
-    <br/><br/>
     <table class="params">
         <tr>
             <td>Laser Min Power [0-255]</td>
@@ -62,14 +59,6 @@
             <td>Start Y [mm]</td>
             <td><input type="number" value="0" name="offsetY"/></td>
             <td>Y value to start image from. The laser will start here and move in the positive direction as it scans. Corresponds to the <strong>top right</strong> of the image.</td>
-        </tr>
-        <tr>
-            <td>Gcode flavour</td>
-            <td>
-                <input type="radio" name="code" value="grbl" checked="checked" > GRBL<br />
-                <input type="radio" name="code" value="reprap"> Reprap
-            </td>
-            <td></td>
         </tr>
     </table>
 </form>

@@ -102,3 +102,61 @@ class ReprapWriter extends GrblWriter {
         $this->println("M107");
     }
 }
+
+class SvgWriter extends Writer {
+    private int $xMin = 1000;
+    private int $yMin = 1000;
+    private int $xMax = -1000;
+    private int $yMax = -1000;
+
+    private string $pathData = "";
+
+    public function header() {
+        $this->moveTo(0, 0);
+    }
+
+    public function laserOn() {
+    }
+
+    public function laserOff() {
+    }
+
+    public function laserPower(int $power) {
+    }
+
+    public function useFastMoves() {
+    }
+
+    public function useLinearMoves() {
+    }
+
+    public function moveTo(float $x, float $y) {
+        $x *= -1;
+        $this->pathData .= "M$x $y ";
+
+        $this->xMin = min($x, $this->xMin);
+        $this->xMax = max($x, $this->xMax);
+        $this->yMin = min($y, $this->yMin);
+        $this->yMax = max($y, $this->yMax);
+    }
+
+    public function moveToX(float $x) {
+        $x *= -1;
+        $this->pathData .= "H$x ";
+        $this->xMin = min($x, $this->xMin);
+        $this->xMax = max($x, $this->xMax);
+    }
+
+    public function getGeneratedCode() {
+        $width = ($this->xMax - $this->xMin) + 2;
+        $height = ($this->yMax - $this->yMin) + 2;
+        return '<?xml version="1.0" encoding="UTF-8" standalone="no"?>'
+                . '<svg width="' . $width . '" height="' . $height . '" '
+                . 'viewBox="' . ($this->xMin - 1) . ' ' . ($this->yMin - 1) . ' ' . $width . ' ' . $height . '" '
+                . 'version="1.1" id="svg8" xmlns="http://www.w3.org/2000/svg">'
+                . '<path fill="transparent" stroke="black" d="' . $this->pathData . '"/>'
+                . '<circle cx="0" cy="0" r="0.5" fill="red"/>'
+                . "</svg>";
+    }
+
+}
