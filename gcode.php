@@ -162,24 +162,24 @@ for ($line = $offsetY; $line < ($sizeY + $offsetY) && $lineIndex < $pixelsY; $li
             break;
         }
 
+        $rgb = imagecolorat($tmp, $pixelIndex, $lineIndex);
+        $value = ($rgb >> 16) & 0xFF;
+        $laserPower = round(map($value, 255, 0, $laserMin, $laserMax), 0);
+
         if (($direction == FORWARDS && $pixelIndex == $firstX)
                 || ($direction == BACKWARDS && $pixelIndex == $lastX)) {
             $writer->useLinearMoves();
             $writer->moveTo(round($pixel - $direction * $overScan, 4), round($line, 4));
             $writer->moveTo(round($pixel, 4), round($line, 4));
         } else {
-            $writer->moveToX(round ($pixel, 4));
-        }
-
-        $rgb = imagecolorat($tmp, $pixelIndex, $lineIndex);
-        $value = ($rgb >> 16) & 0xFF;
-        $value = round(map($value, 255, 0, $laserMin, $laserMax), 0);
-
-        if (($direction == FORWARDS && $pixelIndex == $firstX)
-                || $direction == BACKWARDS && $pixelIndex == $lastX) {
-            // Ignore
-        } else {
-            $writer->laserPower($value);
+            if ($laserPower <= $laserOff) {
+                // Quickly skip over sections without laser power
+                $writer->useFastMoves();
+            } else {
+                $writer->useLinearMoves();
+            }
+            $writer->moveToX(round($pixel, 4));
+            $writer->laserPower($laserPower);
         }
 
         $pixelIndex += $direction;

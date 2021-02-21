@@ -39,6 +39,11 @@ abstract class Writer {
 }
 
 class GrblWriter extends Writer {
+    const MOVE_FAST = 1;
+    const MOVE_LINEAR = 2;
+    const MOVE_UNKNOWN = 3;
+    private int $moveSpeed = self::MOVE_UNKNOWN;
+
     public function header() {
         $this->comment("GRBL flavour");
         $this->println("G21"); // Use metric units
@@ -58,11 +63,19 @@ class GrblWriter extends Writer {
     }
 
     public function useFastMoves() {
+        if ($this->moveSpeed == self::MOVE_FAST) {
+            return; // No need to switch again
+        }
         $this->println("G0 F" . $this->travelRate);
+        $this->moveSpeed = self::MOVE_FAST;
     }
 
     public function useLinearMoves() {
+        if ($this->moveSpeed == self::MOVE_LINEAR) {
+            return; // No need to switch again
+        }
         $this->println("G1 F" . $this->feedRate);
+        $this->moveSpeed = self::MOVE_LINEAR;
     }
 
     public function moveTo(string $x, string $y) {
