@@ -50,15 +50,14 @@ if (isset($_FILES['image']['name']))
 
     }
     else
-      exit();
+      exit("Unknown image type");
 }
 else
-   exit();
+   exit("No image");
 
 if(!isset($_POST['sizeY']) || $_POST['sizeY'] == 0)
    {
-   print("No image height defined :(\n");
-   exit();
+   exit("No image height defined");
    }
 
 //header('Content-Type: text/plain; charset=utf-8');
@@ -104,7 +103,11 @@ header("Content-Disposition: attachment; filename=".$_FILES['image']['name'].".g
 
 $cmdRate = round(($feedRate / $resX) * 2 / 60);
 
-$writer = new GrblWriter();
+if ($_POST["code"] == "reprap") {
+    $writer = new ReprapWriter();
+} else {
+    $writer = new GrblWriter();
+}
 
 $writer->comment("Created using Nebarnix's IMG2GCO program Ver 1.0");
 $writer->comment("http://nebarnix.com 2015");

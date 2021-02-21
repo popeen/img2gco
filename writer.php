@@ -9,19 +9,12 @@ abstract class Writer {
         return $this->generated;
     }
 
-    protected function println(string $line, string $comment = "") {
-        $this->generated .= $line;
-        if ($comment != "") {
-            if ($line != "") {
-                $this->generated .= " ";
-            }
-            $this->generated .= "; " . $comment;
-        }
-        $this->generated .= "\n";
+    protected function println(string $line) {
+        $this->generated .= $line . "\n";
     }
 
     public function comment(string $comment) {
-        $this->println("", $comment);
+        $this->generated .= ";" . $comment . "\n";
     }
 
     public function setTravelRate(string $rate) {
@@ -47,8 +40,9 @@ abstract class Writer {
 
 class GrblWriter extends Writer {
     public function header() {
-        $this->println("G21", "Use metric units");
-        $this->println("G00 Z0", "Home Z");
+        $this->comment("GRBL flavour");
+        $this->println("G21"); // Use metric units
+        $this->println("G00 Z0"); // Home Z
     }
 
     public function laserOn() {
@@ -77,5 +71,21 @@ class GrblWriter extends Writer {
 
     public function moveToX(string $x) {
         $this->println("X" . $x);
+    }
+}
+
+class ReprapWriter extends GrblWriter {
+    public function header() {
+        $this->comment("Reprap flavour");
+        $this->println("G21"); // Use metric units
+        $this->println("G00 Z0"); // Home Z
+    }
+
+    public function laserOn() {
+        $this->println("M106");
+    }
+
+    public function laserOff() {
+        $this->println("M107");
     }
 }
