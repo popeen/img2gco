@@ -79,6 +79,29 @@ session_start();
         </style>
         <script src="http://code.jquery.com/jquery-3.5.1.min.js"></script>
         <script>
+            var previewValid = true;
+            function refreshPreview() {
+                $.ajax({
+                    url: "preview.php",
+                    success: function(data) {
+                        $("#preview").html(data);
+                        previewValid = true;
+                    }
+                });
+            }
+            function invalidate() {
+                if (!previewValid) {
+                    return;
+                }
+                $(".invalidate-on-param-change").css("opacity", "0.1");
+                $.ajax({
+                    url: "index.php?do=invalidate",
+                    success: function(data) {
+                        $(".invalidate-on-param-change").css("opacity", "0.1");
+                        previewValid = false;
+                    }
+                });
+            }
             function generate(code) {
                 var data = $("#parameters").serialize();
                 data = data + "&ajax=true&code=" + code;
@@ -95,25 +118,33 @@ session_start();
                         }
                     }, success: function(data) {
                         $("#generateProgress").text("");
-                        window.location.href = "index.php"; // php shows download link
                         $("#generateProgress").hide(200);
+                        refreshPreview();
                     }, error: function (jqXHR, textStatus, errorThrown) {
                         $("#generateProgress").text("");
-                        $("#submit").prop("disabled", false);
                         $("#generateProgress").hide(200);
+                        refreshPreview();
                     }
                 });
             }
+            $().ready(function () {
+                $("input").change(function(){
+                    invalidate();
+                });
+            });
         </script>
     </head>
     <body>
         <h1>img2gco</h1>
+        <div id="generateProgress"></div>
         <?php
 
         include("lib/upload.php");
 
         if (isset($_SESSION["filename"])) {
-            include("templates/preview.php");
+            echo "<div id='preview'>";
+            include("preview.php");
+            echo "</div>";
             include("templates/form-params.html");
         } else {
             include("templates/form-upload.html");

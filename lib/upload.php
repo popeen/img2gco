@@ -27,6 +27,10 @@ if (isset($_FILES['image']['name'])) {
 } else if (@$_GET["do"] == "clearImage") {
     @unlink($_SESSION["filename"] . "." . $_SESSION["ext"]);
     @unlink($_SESSION["filename"] . ".gcode");
+    @unlink($_SESSION["filename"] . ".svg");
     unset($_SESSION["filename"]);
     unset($_SESSION["ext"]);
+} else if (@$_GET["do"] == "invalidate") {
+    @unlink($_SESSION["filename"] . ".gcode");
+    @unlink($_SESSION["filename"] . ".svg");
 }
