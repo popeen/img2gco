@@ -104,13 +104,12 @@ session_start();
             }
             function generate(code) {
                 var data = $("#parameters").serialize();
-                data = data + "&ajax=true&code=" + code;
                 $("#submit").prop("disabled", true);
                 $("#generateProgress").show(200);
                 $.ajax({
                     type: "POST",
                     url: "generator.php",
-                    data: data,
+                    data: data + "&code=" + code,
                     xhrFields: {
                         onprogress: function(e) {
                             lines = e.target.responseText.split(/\r?\n/);

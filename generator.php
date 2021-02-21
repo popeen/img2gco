@@ -36,7 +36,6 @@ $scanGap=$_POST['scanGap'];
 $offsetX=$_POST['offsetX'];
 $sizeX=$sizeY*$w/$h;
 $resX=$_POST['resX'];
-$ajax=$_POST['ajax'];
 
 //Create a resampled image with exactly the data needed, 1px in to 1px out
 $pixelsX = round($sizeX/$resX);
@@ -178,12 +177,10 @@ for ($line = $offsetY; $line < ($sizeY + $offsetY) && $lineIndex < $pixelsY; $li
     }
     $lineIndex++;
 
-    if ($ajax) {
-        // Show progress
-        echo round($lineIndex / $pixelsY * 100, 0) . "%\n";
-        ob_flush();
-        flush();
-    }
+    // Show progress
+    echo round($lineIndex / $pixelsY * 100, 0) . "%\n";
+    ob_flush();
+    flush();
 }
 
 imagedestroy($tmp);
@@ -198,9 +195,3 @@ if ($_POST["code"] == "svg") {
     $ext = ".svg";
 }
 file_put_contents($_SESSION["filename"] . $ext, $writer->getGeneratedCode());
-
-if ($ajax == false) {
-    // Script should return content directly
-    header("Content-Disposition: attachment; filename=" . $_FILES['image']['name'] . ".gcode");
-    echo $writer->getGeneratedCode();
-}

@@ -27,6 +27,8 @@
                 echo "No gcode generated yet.";
             }
             ?>
+            <br />
+            <br />
             <a href='javascript:generate("reprap")' class="button">Generate reprap gcode</a>
             <a href='javascript:generate("grbl")' class="button">Generate grbl gcode</a>
             <a href='index.php?do=clearImage' class="button">✗ Select other image</a>
