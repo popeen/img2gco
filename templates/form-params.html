@@ -1,0 +1,75 @@
+<form method="post" action="generator.php" id="parameters">
+    <div id="generateProgress" style="text-align: center;"></div>
+    <input type="submit" value='Generate gcode' id="submit" />
+    <br/><br/>
+    <table class="params">
+        <tr>
+            <td>Laser Min Power [0-255]</td>
+            <td><input type="number" value="40" name="LaserMin"/></td>
+            <td>This is the laser power that corresponds to WHITE. Set it just below where it makes a mark on your given material</td>
+        </tr>
+        <tr>
+            <td>Laser Max Power [0-255]</td>
+            <td><input type="number" value="250" name="LaserMax"/></td>
+            <td>This is the laser power that corresponds to BLACK. Set it to a level where it makes a nice black mark and where increasing power does not make the mark any darker</td>
+        </tr>
+        <tr>
+            <td>Laser 'Off' Power [0-255]</td>
+            <td><input type="number" value="0" name="LaserOff"/></td>
+            <td>This is the laser power that will not mark the wood at all, even if it just sits there. Usually this is the bare minimum that your PWM board will respond to.</td>
+        </tr>
+        <tr>
+            <td>Skip over values above [0-255]</td>
+            <td><input type="number" value="253" name="whiteLevel"/></td>
+            <td>This defines the white level. In a JPEG the white level probably contains some compression artifacts so you might have to go down to 252 or so. PNG images should have white at 255 so 254 is a good value.</td>
+        </tr>
+        <tr>
+            <td>Travel rate [mm/min]</td>
+            <td><input type="number" value="3000" name="travelRate"/></td>
+            <td>Slewing between places speed.</td>
+        </tr>
+        <tr>
+            <td>Scan rate [mm/min]</td>
+            <td><input type="number" value="2000" name="feedRate"/></td>
+            <td>Speed to move while lasering. This is usually limited by the commands per second rate of your firmware, you can go faster from an SDcard than over USB. You will need to find this speed, and note that the power levels will need tweaked if this speed is changed.</td>
+        </tr>
+        <tr>
+            <td>Overscan Distance [mm]</td>
+            <td><input type="number" value="3"  name="overScan"/></td>
+            <td>This sets a 'blank' distance before the start of the line to give the belts time to settle down and the motors to reach constant speed.</td>
+        </tr>
+        <tr>
+            <td>Height [mm]</td>
+            <td><input type="number" value="50" name="sizeY"/></td>
+            <td>Set the height, the script will autosize the width</td>
+        </tr>
+        <tr>
+            <td>Horizontal Resolution [mm/pixel]</td>
+            <td><input type="text" value="0.1" name="resX"/></td>
+            <td>mm between pixels. If you make this larger you can attain faster speeds, but at the price of some detail loss. 0.1 is really amazing 0.15 is nearly so. 0.2 starts to look a little fuzzy. Beyond that you will probably see pixelization.</td>
+        </tr>
+        <tr>
+            <td>Scangap [mm/line]</td>
+            <td><input type="text" value="0.1" name="scanGap"/></td>
+            <td>This is the distance between lines which is a function of your laser spot size. You need to make this small enough so there aren't visible unburned lines. For my laser this is 0.05 though I can usually get away with 0.075 because its faster. 0.1 leaves visible lines, which is kind of a cool effect. You can try to defocus your laser to make thicker lines for shorter overall total time, but you will have to increase your power. Note that if lines start to overlap you might need to bring your power down slightly.</td>
+        </tr>
+        <tr>
+            <td>Start X [mm]</td>
+            <td><input type="number" value="0" name="offsetX"/></td>
+            <td>X value to start image from. The laser will start here and move in the positive direction as it scans. Corresponds to the <strong>top right</strong> of the image.</td>
+        </tr>
+        <tr>
+            <td>Start Y [mm]</td>
+            <td><input type="number" value="0" name="offsetY"/></td>
+            <td>Y value to start image from. The laser will start here and move in the positive direction as it scans. Corresponds to the <strong>top right</strong> of the image.</td>
+        </tr>
+        <tr>
+            <td>Gcode flavour</td>
+            <td>
+                <input type="radio" name="code" value="grbl" checked="checked" > GRBL<br />
+                <input type="radio" name="code" value="reprap"> Reprap
+            </td>
+            <td></td>
+        </tr>
+    </table>
+</form>

@@ -1,6 +1,7 @@
 <?php
-include("writer.php");
-include("image.php");
+session_start();
+include("lib/writer.php");
+include("lib/image.php");
 
 function map($value, $fromLow, $fromHigh, $toLow, $toHigh) {
     $fromRange = $fromHigh - $fromLow;
@@ -17,33 +18,8 @@ function map($value, $fromLow, $fromHigh, $toLow, $toHigh) {
 
 set_time_limit(300);
 
-//error_reporting(E_ALL);
-//ini_set('display_errors', 1);
-
-$now = new DateTime();
-$name = $now->getTimestamp();
-$ext = "jpg";
-if (isset($_FILES['image']['name'])) {
-    $saveto = "$name.$ext";
-    switch($_FILES['image']['type']) {
-        case "image/gif":
-            $src = imagecreatefromgif($_FILES['image']['tmp_name']);
-            break;
-        case "image/jpeg": // Both regular and progressive jpegs
-        case "image/pjpeg":
-            $src = imagecreatefromjpeg($_FILES['image']['tmp_name']);
-            break;
-        case "image/png":
-            $src = imagecreatefrompng($_FILES['image']['tmp_name']);
-            break;
-        default:
-            exit("Unknown image type");
-            break;
-    }
-    list($w, $h) = getimagesize($_FILES['image']['tmp_name']);
-} else {
-   exit("No image");
-}
+$sourceImagePath = $_SESSION["filename"] . "." . $_SESSION["ext"];
+list($w, $h) = getimagesize($sourceImagePath);
 
 if(!isset($_POST['sizeY']) || $_POST['sizeY'] == 0) {
     exit("No image height defined");
@@ -60,26 +36,31 @@ $scanGap=$_POST['scanGap'];
 $offsetX=$_POST['offsetX'];
 $sizeX=$sizeY*$w/$h;
 $resX=$_POST['resX'];
+$ajax=$_POST['ajax'];
 
 //Create a resampled image with exactly the data needed, 1px in to 1px out
 $pixelsX = round($sizeX/$resX);
 $pixelsY = round($sizeY/$scanGap);
 
+switch ($_SESSION["ext"]) {
+    case "gif":
+        $src = imagecreatefromgif($sourceImagePath);
+        break;
+    case "jpg":
+        $src = imagecreatefromjpeg($sourceImagePath);
+        break;
+    case "png":
+        $src = imagecreatefrompng($sourceImagePath);
+        break;
+    default:
+        exit("Unknown image type");
+        break;
+}
+
 $tmp = imagecreatetruecolor($pixelsX, $pixelsY);
 imagecopyresampled($tmp, $src, 0, 0, 0, 0, $pixelsX, $pixelsY, $w, $h);
 Image::flip($tmp);
 imagefilter($tmp,IMG_FILTER_GRAYSCALE);
-
-if ($_POST['preview'] == 1) {
-    header('Content-Type: image/jpeg'); //do this to display following image
-    imagejpeg($tmp); //show image
-    imagedestroy($tmp);
-    imagedestroy($src);
-    exit(); //exit if above
-}
-
-header("Content-Disposition: attachment; filename=".$_FILES['image']['name'].".gcode");
-
 
 if ($_POST["code"] == "reprap") {
     $writer = new ReprapWriter();
@@ -94,9 +75,9 @@ $writer->comment("Size in pixels X=$pixelsX, Y=$pixelsY");
 
 $cmdRate = round(($_POST['feedRate'] / $resX) * 2 / 60);
 $writer->comment("Size in mm X=" . round($sizeX, 2) . ", Y=" . round($sizeY, 2));
-$writer->comment("");
 $writer->comment("Speed is " . $_POST['feedRate'] . " mm/min, $resX mm/pix => $cmdRate lines/sec");
 $writer->comment("Power is $laserMin to $laserMax (". round($laserMin/255*100, 1) ."%-". round($laserMax/255*100, 1) ."%)");
+$writer->comment("");
 
 // Start with the actual gcode generation
 
@@ -192,6 +173,13 @@ for ($line = $offsetY; $line < ($sizeY + $offsetY) && $lineIndex < $pixelsY; $li
         $writer->laserPower($laserOff);
     }
     $lineIndex++;
+
+    if ($ajax) {
+        // Show progress
+        echo round($lineIndex / $pixelsY * 100, 0) . "%\n";
+        ob_flush();
+        flush();
+    }
 }
 
 imagedestroy($tmp);
@@ -201,4 +189,12 @@ $writer->laserOff();
 $writer->useFastMoves();
 $writer->moveTo(0, 0);
 
-echo $writer->getGeneratedCode();
+file_put_contents($_SESSION["filename"] . ".gcode", $writer->getGeneratedCode());
+
+if ($ajax == false) {
+    // Script should return content directly
+    header("Content-Disposition: attachment; filename=" . $_FILES['image']['name'] . ".gcode");
+    echo $writer->getGeneratedCode();
+} else {
+
+}
