@@ -49,25 +49,17 @@ if(!isset($_POST['sizeY']) || $_POST['sizeY'] == 0) {
     exit("No image height defined");
 }
 
-//header('Content-Type: text/plain; charset=utf-8');
-
-$laserMax=$_POST['LaserMax'];//$laserMax=65; //out of 255
-$laserMin=$_POST['LaserMin']; //$laserMin=20; //out of 255
-$laserOff=$_POST['LaserOff'];//$laserOff=13; //out of 255
+$laserMax=$_POST['LaserMax'];
+$laserMin=$_POST['LaserMin'];
+$laserOff=$_POST['LaserOff'];
 $whiteLevel=$_POST['whiteLevel'];
-
-$feedRate = $_POST['feedRate'];//$feedRate = 800; //in mm/sec
-$travelRate = $_POST['travelRate'];//$travelRate = 3000;
-
-$overScan = $_POST['overScan'];//$overScan = 3;
-
-$offsetY=$_POST['offsetY'];//$offsetY=10;
-$sizeY=$_POST['sizeY'];//$sizeY=40;
-$scanGap=$_POST['scanGap'];//$scanGap=.1;
-
-$offsetX=$_POST['offsetX'];//$offsetX=5;
-$sizeX=$sizeY*$w/$h; //SET A HEIGHT AND CALC WIDTH (this should be customizable)
-$resX=$_POST['resX'];;//$resX=.1;
+$overScan = $_POST['overScan'];
+$offsetY=$_POST['offsetY'];
+$sizeY=$_POST['sizeY'];
+$scanGap=$_POST['scanGap'];
+$offsetX=$_POST['offsetX'];
+$sizeX=$sizeY*$w/$h;
+$resX=$_POST['resX'];
 
 //Create a resampled image with exactly the data needed, 1px in to 1px out
 $pixelsX = round($sizeX/$resX);
@@ -78,7 +70,7 @@ imagecopyresampled($tmp, $src, 0, 0, 0, 0, $pixelsX, $pixelsY, $w, $h);
 Image::flip($tmp);
 imagefilter($tmp,IMG_FILTER_GRAYSCALE);
 
-if($_POST['preview'] == 1) {
+if ($_POST['preview'] == 1) {
     header('Content-Type: image/jpeg'); //do this to display following image
     imagejpeg($tmp); //show image
     imagedestroy($tmp);
@@ -107,12 +99,12 @@ $writer->comment("Power is $laserMin to $laserMax (". round($laserMin/255*100, 1
 
 // Start with the actual gcode generation
 
-$writer->header();
+$writer->setFeedRate($_POST['feedRate']);
+$writer->setTravelRate($_POST['travelRate']);
 
+$writer->header();
 $writer->laserOn();
 $writer->laserPower($laserOff);
-$writer->setFeedRate($feedRate);
-$writer->setTravelRate($travelRate);
 $writer->useFastMoves();
 $writer->moveTo($offsetX, $offsetY);
 
