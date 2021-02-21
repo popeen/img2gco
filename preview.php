@@ -9,7 +9,7 @@
     </tr>
     <tr>
         <td>
-            <img src="<?php echo $_SESSION["filename"] . "." . $_SESSION["ext"] ?>" />
+            <img src="<?php echo $_SESSION["filename"] . "." . $_SESSION["ext"] ?>" style="background:#222;" />
         </td>
         <td>
             <?php
