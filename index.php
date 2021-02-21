@@ -1,7 +1,6 @@
 <?php
 session_start();
-
-
+include("lib/upload.php");
 ?><html>
     <head>
         <title>img2gco</title>
@@ -161,8 +160,6 @@ session_start();
         <h1>img2gco</h1>
         <div id="generateProgress"></div>
         <?php
-
-        include("lib/upload.php");
 
         if (isset($_SESSION["filename"])) {
             echo "<div id='preview'>";
