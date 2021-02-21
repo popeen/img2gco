@@ -29,13 +29,13 @@ abstract class Writer {
 
     public abstract function laserOn();
     public abstract function laserOff();
-    public abstract function laserPower(string $power);
+    public abstract function laserPower(int $power);
 
     public abstract function useFastMoves();
     public abstract function useLinearMoves();
 
-    public abstract function moveTo(string $x, string $y);
-    public abstract function moveToX(string $x);
+    public abstract function moveTo(float $x, float $y);
+    public abstract function moveToX(float $x);
 }
 
 class GrblWriter extends Writer {
@@ -58,7 +58,7 @@ class GrblWriter extends Writer {
         $this->println("M5");
     }
 
-    public function laserPower(string $power) {
+    public function laserPower(int $power) {
         $this->println("S$power");
     }
 
@@ -78,12 +78,12 @@ class GrblWriter extends Writer {
         $this->moveSpeed = self::MOVE_LINEAR;
     }
 
-    public function moveTo(string $x, string $y) {
-        $this->println("X" . $x . " Y" . $y);
+    public function moveTo(float $x, float $y) {
+        $this->println("X" . round($x, 4) . " Y" . round($y, 4));
     }
 
-    public function moveToX(string $x) {
-        $this->println("X" . $x);
+    public function moveToX(float $x) {
+        $this->println("X" . round($x, 4));
     }
 }
 

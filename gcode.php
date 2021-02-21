@@ -80,7 +80,6 @@ if ($_POST['preview'] == 1) {
 
 header("Content-Disposition: attachment; filename=".$_FILES['image']['name'].".gcode");
 
-$cmdRate = round(($feedRate / $resX) * 2 / 60);
 
 if ($_POST["code"] == "reprap") {
     $writer = new ReprapWriter();
@@ -92,9 +91,11 @@ $writer->comment("Created using Nebarnix's IMG2GCO program Ver 1.0");
 $writer->comment("http://nebarnix.com 2015");
 $writer->comment("");
 $writer->comment("Size in pixels X=$pixelsX, Y=$pixelsY");
+
+$cmdRate = round(($_POST['feedRate'] / $resX) * 2 / 60);
 $writer->comment("Size in mm X=" . round($sizeX, 2) . ", Y=" . round($sizeY, 2));
 $writer->comment("");
-$writer->comment("Speed is $feedRate mm/min, $resX mm/pix => $cmdRate lines/sec");
+$writer->comment("Speed is " . $_POST['feedRate'] . " mm/min, $resX mm/pix => $cmdRate lines/sec");
 $writer->comment("Power is $laserMin to $laserMax (". round($laserMin/255*100, 1) ."%-". round($laserMax/255*100, 1) ."%)");
 
 // Start with the actual gcode generation
@@ -169,8 +170,8 @@ for ($line = $offsetY; $line < ($sizeY + $offsetY) && $lineIndex < $pixelsY; $li
         if (($direction == FORWARDS && $pixelIndex == $firstX)
                 || ($direction == BACKWARDS && $pixelIndex == $lastX)) {
             $writer->useLinearMoves();
-            $writer->moveTo(round($pixel - $direction * $overScan, 4), round($line, 4));
-            $writer->moveTo(round($pixel, 4), round($line, 4));
+            $writer->moveTo($pixel - $direction * $overScan, $line);
+            $writer->moveTo($pixel, $line);
         } else {
             if ($laserPower <= $laserOff) {
                 // Quickly skip over sections without laser power
@@ -178,7 +179,7 @@ for ($line = $offsetY; $line < ($sizeY + $offsetY) && $lineIndex < $pixelsY; $li
             } else {
                 $writer->useLinearMoves();
             }
-            $writer->moveToX(round($pixel, 4));
+            $writer->moveToX($pixel);
             $writer->laserPower($laserPower);
         }
 
