@@ -77,7 +77,7 @@ session_start();
                 width: 100px;
             }
         </style>
-        <script src="http://code.jquery.com/jquery-3.5.1.min.js"></script>
+        <script src="templates/jquery-3.5.1.min.js"></script>
         <script>
             var previewValid = true;
             function refreshPreview() {
