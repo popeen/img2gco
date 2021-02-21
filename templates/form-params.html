@@ -51,14 +51,9 @@
             <td>This is the distance between lines which is a function of your laser spot size. You need to make this small enough so there aren't visible unburned lines. For my laser this is 0.05 though I can usually get away with 0.075 because its faster. 0.1 leaves visible lines, which is kind of a cool effect. You can try to defocus your laser to make thicker lines for shorter overall total time, but you will have to increase your power. Note that if lines start to overlap you might need to bring your power down slightly.</td>
         </tr>
         <tr>
-            <td>Start X [mm]</td>
-            <td><input type="number" value="0" name="offsetX"/></td>
-            <td>X value to start image from. The laser will start here and move in the positive direction as it scans. Corresponds to the <strong>top right</strong> of the image.</td>
-        </tr>
-        <tr>
-            <td>Start Y [mm]</td>
-            <td><input type="number" value="0" name="offsetY"/></td>
-            <td>Y value to start image from. The laser will start here and move in the positive direction as it scans. Corresponds to the <strong>top right</strong> of the image.</td>
+            <td>Start position [mm]</td>
+            <td><span class="halfLabel">x: </span><input type="number" value="0" name="offsetX" class="half"/><span class="halfLabel">y: </span><input type="number" value="0" name="offsetY" class="half"/></td>
+            <td>Position to start image from. Corresponds to the <strong>top right</strong> of the image.</td>
         </tr>
     </table>
 </form>

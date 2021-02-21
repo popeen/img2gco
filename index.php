@@ -62,6 +62,14 @@ session_start();
             td input {
                 width: 200px;
             }
+            td input.half {
+                width: 75px;
+            }
+            td span.halfLabel {
+                margin-left: 5px;
+                width: 18px;
+                display: inline-block;
+            }
             td [type = radio] {
                 width: auto;
             }
