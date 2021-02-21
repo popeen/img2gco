@@ -21,48 +21,36 @@ set_time_limit(300);
 //ini_set('display_errors', 1);
 
 $now = new DateTime();
-$name = $now->getTimestamp();           // Unix Timestamp -- Since PHP 5.3;
+$name = $now->getTimestamp();
 $ext = "jpg";
-if (isset($_FILES['image']['name']))
-{
+if (isset($_FILES['image']['name'])) {
     $saveto = "$name.$ext";
-    //print ";$saveto\n";
-    //move_uploaded_file($_FILES['image']['tmp_name'], $saveto);
-    $typeok = TRUE;
-    switch($_FILES['image']['type'])
-    {
-        //case "image/gif": $src = imagecreatefromgif($saveto); break;
-        //case "image/jpeg": // Both regular and progressive jpegs
-        //case "image/pjpeg": $src = imagecreatefromjpeg($saveto); break;
-        //case "image/png": $src = imagecreatefrompng($saveto); break;
-
-        case "image/gif": $src = imagecreatefromgif($_FILES['image']['tmp_name']); break;
+    switch($_FILES['image']['type']) {
+        case "image/gif":
+            $src = imagecreatefromgif($_FILES['image']['tmp_name']);
+            break;
         case "image/jpeg": // Both regular and progressive jpegs
-        case "image/pjpeg": $src = imagecreatefromjpeg($_FILES['image']['tmp_name']); break;
-        case "image/png": $src = imagecreatefrompng($_FILES['image']['tmp_name']); break;
-        default: $typeok = FALSE; break;
+        case "image/pjpeg":
+            $src = imagecreatefromjpeg($_FILES['image']['tmp_name']);
+            break;
+        case "image/png":
+            $src = imagecreatefrompng($_FILES['image']['tmp_name']);
+            break;
+        default:
+            exit("Unknown image type");
+            break;
     }
-    if ($typeok)
-    {
-       //print ";image OK\n";
-       //list($w, $h) = getimagesize($saveto);
-       list($w, $h) = getimagesize($_FILES['image']['tmp_name']);
-
-    }
-    else
-      exit("Unknown image type");
-}
-else
+    list($w, $h) = getimagesize($_FILES['image']['tmp_name']);
+} else {
    exit("No image");
+}
 
-if(!isset($_POST['sizeY']) || $_POST['sizeY'] == 0)
-   {
-   exit("No image height defined");
-   }
+if(!isset($_POST['sizeY']) || $_POST['sizeY'] == 0) {
+    exit("No image height defined");
+}
 
 //header('Content-Type: text/plain; charset=utf-8');
 
-$goBackwards = 0; // stores the direction the head is traveling though the image
 $laserMax=$_POST['LaserMax'];//$laserMax=65; //out of 255
 $laserMin=$_POST['LaserMin']; //$laserMin=20; //out of 255
 $laserOff=$_POST['LaserOff'];//$laserOff=13; //out of 255
@@ -90,14 +78,13 @@ imagecopyresampled($tmp, $src, 0, 0, 0, 0, $pixelsX, $pixelsY, $w, $h);
 Image::flip($tmp);
 imagefilter($tmp,IMG_FILTER_GRAYSCALE);
 
-if($_POST['preview'] == 1)
-   {
-   header('Content-Type: image/jpeg'); //do this to display following image
-   imagejpeg($tmp); //show image
-   imagedestroy($tmp);
-   imagedestroy($src);
-   exit(); //exit if above
-   }
+if($_POST['preview'] == 1) {
+    header('Content-Type: image/jpeg'); //do this to display following image
+    imagejpeg($tmp); //show image
+    imagedestroy($tmp);
+    imagedestroy($src);
+    exit(); //exit if above
+}
 
 header("Content-Disposition: attachment; filename=".$_FILES['image']['name'].".gcode");
 
@@ -130,120 +117,88 @@ $writer->useFastMoves();
 $writer->moveTo($offsetX, $offsetY);
 
 $lineIndex = 0;
+define("BACKWARDS", -1);
+define("FORWARDS", 1);
+$direction = 1; // Backwards: -1, forwards: 1
 // Run through the image in gcode coordinates
-for($line = $offsetY; $line < ($sizeY + $offsetY) && $lineIndex < $pixelsY; $line += $scanGap)
-{
-   if ($goBackwards == 0)
-   {
-	   //analyze the row and find first and last nonwhite pixels
-	   $pixelIndex = 0; // start at 0
-	   $firstX = 0; // reset the first find
-	   $lastX = 0; // reset the last find
+for ($line = $offsetY; $line < ($sizeY + $offsetY) && $lineIndex < $pixelsY; $line += $scanGap) {
+    if ($direction == FORWARDS) {
+        $pixelIndex = 0;
+    } else {
+        $pixelIndex = $pixelsX - 1;
+    }
+    $firstX = 0; // reset the first find
+    $lastX = 0; // reset the last find
 
-       // Run through all pixels in forward direction and check brightness and store first and last location per line by on the fly updating
-	   for($pixelIndex = 0; $pixelIndex < $pixelsX; $pixelIndex++)
-	   {
-	      // check the temp image at pixel and line index
-		  $rgb = imagecolorat($tmp, $pixelIndex, $lineIndex);
-		  $value = ($rgb >> 16) & 0xFF; // create 8bit value from 24bit value - Image is already greyscale
+    // Find first non-white pixel
+    while ($pixelIndex >= 0 && $pixelIndex < $pixelsX) {
+        $rgb = imagecolorat($tmp, $pixelIndex, $lineIndex);
+        $value = ($rgb >> 16) & 0xFF; // create 8bit value from 24bit value - Image is already greyscale
+        if ($value < $whiteLevel) { //Nonwhite image parts
+            if ($direction == FORWARDS) {
+                if ($firstX == 0) {
+                    $firstX = $pixelIndex;
+                }
+                $lastX = $pixelIndex; // Save last known non-white pixel continuously
+            } else if ($direction == BACKWARDS) {
+                if ($lastX == 0) {
+                    $lastX = $pixelIndex;
+                }
+                $firstX = $pixelIndex; // Save last known non-white pixel continuously
+            }
+        }
+        $pixelIndex += $direction;
+    }
 
-          // Check if the current pixel is brighter than the theshold
-		  if($value < $whiteLevel) //Nonwhite image parts
-		  {
-		     // if yes, and the first pixel was not set yet, store it now
-			 if($firstX == 0)
-				$firstX = $pixelIndex;
-             // Continuesly update the last pixel until the line has ended.
-			 $lastX = $pixelIndex; // Save last known non-white pixel
-		  }
-	   }
+    // Generate gcode
 
-	   $pixelIndex = $firstX; // Reset pixel index to the first found pixel while traveling forwards
-   }
-   else if ($goBackwards == 1)
-   {
-	   //analyze the row and find first and last nonwhite pixels
-	   $pixelIndex = $pixelsX; // Reset the pixel index to the right most last pixel index
-	   $firstX = 0; // Reset the first found pixel
-	   $lastX = 0; // Reset the last found pixel
-	   // Remark: This should be reversed when traveling backwards!
+    if ($direction == FORWARDS) {
+        $pixelIndex = $firstX;
+        $pixel = $offsetX + $firstX * $resX;
+    } else {
+        $pixelIndex = $lastX;
+        $pixel = $offsetX + $lastX * $resX;
+    }
 
-	   for($pixelIndex = $pixelsX - 1; $pixelIndex > 0; $pixelIndex--)
-	   {
-		  $rgb = imagecolorat($tmp, $pixelIndex, $lineIndex);
-		  $value = ($rgb >> 16) & 0xFF; // create 8bit value from 24bit value - Image is already greyscale
+    while (($direction == BACKWARDS && $pixel >= $offsetX)
+            || ($direction == FORWARDS && $pixel < ($sizeX + $offsetX))) {
+        if ($direction == FORWARDS && $pixelIndex == $lastX) {
+            $direction = BACKWARDS;
+            break;
+        } else if($direction == BACKWARDS && $pixelIndex == $firstX) {
+            $direction = FORWARDS;
+            break;
+        }
 
-		  if($value < $whiteLevel) //Nonwhite image parts
-		  {
-			 if($lastX == 0)
-				$lastX = $pixelIndex;
+        if (($direction == FORWARDS && $pixelIndex == $firstX)
+                || ($direction == BACKWARDS && $pixelIndex == $lastX)) {
+            $writer->useLinearMoves();
+            $writer->moveTo(round($pixel - $direction * $overScan, 4), round($line, 4));
+            $writer->moveTo(round($pixel, 4), round($line, 4));
+        } else {
+            $writer->moveToX(round ($pixel, 4));
+        }
 
-			 $firstX = $pixelIndex; // Save last known non-white pixel
-		  }
-	   }
+        $rgb = imagecolorat($tmp, $pixelIndex, $lineIndex);
+        $value = ($rgb >> 16) & 0xFF;
+        $value = round(map($value, 255, 0, $laserMin, $laserMax), 0);
 
-	   $pixelIndex = $lastX; // Reset pixel index back to the first found pixel while traveling backwards
-   }
+        if (($direction == FORWARDS && $pixelIndex == $firstX)
+                || $direction == BACKWARDS && $pixelIndex == $lastX) {
+            // Ignore
+        } else {
+            $writer->laserPower($value);
+        }
 
-   if ($goBackwards==0)
-   {
-	   for($pixel = $offsetX + $firstX * $resX; $pixel < ($sizeX + $offsetX); $pixel += $resX)
-	   {
-		  if($pixelIndex == $lastX)
-		  {
-			 $goBackwards = 1;
-			 break;
-		  }
+        $pixelIndex += $direction;
+        $pixel += $direction * $resX;
+    }
 
-		  if($pixelIndex == $firstX)
-		  {
-                         $writer->useLinearMoves();
-                         $writer->moveTo(round($pixel - $overScan, 4), round($line, 4));
-                         $writer->moveTo(round($pixel, 4), round($line, 4));
-		  }
-		  else
-                         $writer->moveToX(round ($pixel, 4));
-
-		  $rgb = imagecolorat($tmp, $pixelIndex, $lineIndex);
-		  $value = ($rgb >> 16) & 0xFF;
-		  $value = round(map($value, 255, 0, $laserMin, $laserMax), 0);
-		  if($pixelIndex != $firstX)
-                      $writer->laserPower($value);
-		  $pixelIndex++;
-	   }
-   }
-   else
-   {
-	   for($pixel = $offsetX + $lastX * $resX; $pixel >= $offsetX; ($pixel -= $resX))
-	   {
-		  if($pixelIndex == $firstX)
-		  {
-			 $goBackwards = 0;
-			 break;
-		  }
-
-		  if($pixelIndex == $lastX)
-		  {
-                      $writer->useLinearMoves();
-                      $writer->moveTo(round($pixel + $overScan, 4), round($line, 4));
-                      $writer->moveTo(round($pixel, 4), round($line, 4));
-		  }
-		  else
-                      $writer->moveToX(round($pixel, 4));
-
-		  $rgb = imagecolorat($tmp, $pixelIndex, $lineIndex);
-		  $value = ($rgb >> 16) & 0xFF;
-		  $value = round(map($value, 255, 0, $laserMin, $laserMax), 0);
-		  if($pixelIndex != $lastX)
-                        $writer->laserPower($value);
-		  $pixelIndex--;
-	   }
-   }
-   if ($firstX > 0 && $lastX > 0)
-       $writer->laserPower($laserOff);
-   $lineIndex++;
+    if ($firstX > 0 && $lastX > 0) {
+        $writer->laserPower($laserOff);
+    }
+    $lineIndex++;
 }
-$lineIndex--;
 
 imagedestroy($tmp);
 
