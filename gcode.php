@@ -171,6 +171,7 @@ for ($line = $offsetY; $line < ($sizeY + $offsetY) && $lineIndex < $pixelsY; $li
                 || ($direction == BACKWARDS && $pixelIndex == $lastX)) {
             $writer->useLinearMoves();
             $writer->moveTo($pixel - $direction * $overScan, $line);
+            $writer->laserPower($laserOff);
             $writer->moveTo($pixel, $line);
         } else {
             if ($laserPower <= $laserOff) {
