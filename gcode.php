@@ -1,41 +1,6 @@
 <?php
-/**
- * Flip (mirror) an image left to right.
- *
- * @param image  resource
- * @param x      int
- * @param y      int
- * @param width  int
- * @param height int
- * @return bool
- * @require PHP 3.0.7 (function_exists), GD1
- */
-function flipMyImage(&$image, $x = 0, $y = 0, $width = null, $height = null)
-{
-    if ($width  < 1) $width  = imagesx($image);
-    if ($height < 1) $height = imagesy($image);
-    // Truecolor provides better results, if possible.
-    if (function_exists('imageistruecolor') && imageistruecolor($image))
-    {
-        $tmp = imagecreatetruecolor(1, $height);
-    }
-    else
-    {
-        $tmp = imagecreate(1, $height);
-    }
-    $x2 = $x + $width - 1;
-    for ($i = (int) floor(($width - 1) / 2); $i >= 0; $i--)
-    {
-        // Backup right stripe.
-        imagecopy($tmp,   $image, 0,        0,  $x2 - $i, $y, 1, $height);
-        // Copy left stripe to the right.
-        imagecopy($image, $image, $x2 - $i, $y, $x + $i,  $y, 1, $height);
-        // Copy backuped right stripe to the left.
-        imagecopy($image, $tmp,   $x + $i,  $y, 0,        0,  1, $height);
-    }
-    imagedestroy($tmp);
-    return true;
-}
+include("writer.php");
+include("image.php");
 
 function map($value, $fromLow, $fromHigh, $toLow, $toHigh) {
     $fromRange = $fromHigh - $fromLow;
@@ -123,7 +88,7 @@ $pixelsY = round($sizeY/$scanGap);
 
 $tmp = imagecreatetruecolor($pixelsX, $pixelsY);
 imagecopyresampled($tmp, $src, 0, 0, 0, 0, $pixelsX, $pixelsY, $w, $h);
-flipMyImage($tmp);
+Image::flip($tmp);
 imagefilter($tmp,IMG_FILTER_GRAYSCALE);
 
 if($_POST['preview'] == 1)
@@ -137,26 +102,33 @@ if($_POST['preview'] == 1)
 
 header("Content-Disposition: attachment; filename=".$_FILES['image']['name'].".gcode");
 
-print("\n;Created using Nebarnix's IMG2GCO program Ver 1.0\n");
-print(";http://nebarnix.com 2015\n");
+$cmdRate = round(($feedRate / $resX) * 2 / 60);
 
-print(";Size in pixels X=$pixelsX, Y=$pixelsY\n");
-print(";Size in mm X=".round($sizeX,2).", Y=".round($sizeY,2)."\n");
-$cmdRate = round(($feedRate/$resX)*2/60);
-print(";Speed is $feedRate mm/min, $resX mm/pix => $cmdRate lines/sec\n");
-print(";Power is $laserMin to $laserMax (". round($laserMin/255*100,1) ."%-". round($laserMax/255*100,1) ."%)\n");
+$writer = new GrblWriter();
+
+$writer->comment("Created using Nebarnix's IMG2GCO program Ver 1.0");
+$writer->comment("http://nebarnix.com 2015");
+$writer->comment("");
+$writer->comment("Size in pixels X=$pixelsX, Y=$pixelsY");
+$writer->comment("Size in mm X=" . round($sizeX, 2) . ", Y=" . round($sizeY, 2));
+$writer->comment("");
+$writer->comment("Speed is $feedRate mm/min, $resX mm/pix => $cmdRate lines/sec");
+$writer->comment("Power is $laserMin to $laserMax (". round($laserMin/255*100, 1) ."%-". round($laserMax/255*100, 1) ."%)");
 
 // Start with the actual gcode generation
 
-print("G21\n");
-print("M3 S$laserOff; Turn laser off\n");
-print("G1 F$feedRate\n");
+$writer->header();
+
+$writer->laserOn();
+$writer->laserPower($laserOff);
+$writer->setFeedRate($feedRate);
+$writer->setTravelRate($travelRate);
+$writer->useFastMoves();
+$writer->moveTo($offsetX, $offsetY);
 
 $lineIndex = 0;
-print("G0 X$offsetX Y$offsetY F$travelRate\n");
-
 // Run through the image in gcode coordinates
-for($line = $offsetY; $line < ($sizeY + $offsetY); $line += $scanGap)
+for($line = $offsetY; $line < ($sizeY + $offsetY) && $lineIndex < $pixelsY; $line += $scanGap)
 {
    if ($goBackwards == 0)
    {
@@ -222,20 +194,18 @@ for($line = $offsetY; $line < ($sizeY + $offsetY); $line += $scanGap)
 
 		  if($pixelIndex == $firstX)
 		  {
-			 print("G1 X".round($pixel - $overScan, 4)." Y".round($line, 4)." F$travelRate\n");
-			 print("G1 F$feedRate\n");
-			 print("G1 X".round($pixel,4)."Y".round($line,4));
+                         $writer->useLinearMoves();
+                         $writer->moveTo(round($pixel - $overScan, 4), round($line, 4));
+                         $writer->moveTo(round($pixel, 4), round($line, 4));
 		  }
 		  else
-			 print("X".round($pixel,4));
+                         $writer->moveToX(round ($pixel, 4));
 
 		  $rgb = imagecolorat($tmp, $pixelIndex, $lineIndex);
 		  $value = ($rgb >> 16) & 0xFF;
 		  $value = round(map($value, 255, 0, $laserMin, $laserMax), 0);
 		  if($pixelIndex != $firstX)
-		     print("S$value\n");
-		  else
-		     print("\n");
+                      $writer->laserPower($value);
 		  $pixelIndex++;
 	   }
    }
@@ -251,32 +221,32 @@ for($line = $offsetY; $line < ($sizeY + $offsetY); $line += $scanGap)
 
 		  if($pixelIndex == $lastX)
 		  {
-			 print("G1 X".round($pixel + $overScan, 4)." Y".round($line, 4)." F$travelRate\n");
-			 print("G1 F$feedRate\n");
-			 print("G1 X".round($pixel,4)."Y".round($line,4));
+                      $writer->useLinearMoves();
+                      $writer->moveTo(round($pixel + $overScan, 4), round($line, 4));
+                      $writer->moveTo(round($pixel, 4), round($line, 4));
 		  }
 		  else
-			 print("X".round($pixel,4));
+                      $writer->moveToX(round($pixel, 4));
 
 		  $rgb = imagecolorat($tmp, $pixelIndex, $lineIndex);
 		  $value = ($rgb >> 16) & 0xFF;
 		  $value = round(map($value, 255, 0, $laserMin, $laserMax), 0);
 		  if($pixelIndex != $lastX)
-		     print("S$value\n");
-		  else
-		     print("\n");
+                        $writer->laserPower($value);
 		  $pixelIndex--;
 	   }
    }
    if ($firstX > 0 && $lastX > 0)
-      print("M3 S$laserOff\n\n");
+       $writer->laserPower($laserOff);
    $lineIndex++;
 }
 $lineIndex--;
 
-print("M5 S$laserOff ;Turn laser off\n");
-//print("G1 X$offsetX Y$offsetY F$travelRate ;Go home\n");
-print("G1 X0 Y0 F$travelRate ;Go home\n");
-
 imagedestroy($tmp);
-?>
+
+$writer->laserPower($laserOff);
+$writer->laserOff();
+$writer->useFastMoves();
+$writer->moveTo(0, 0);
+
+echo $writer->getGeneratedCode();
