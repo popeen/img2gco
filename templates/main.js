@@ -21,6 +21,42 @@ function invalidate() {
         }
     });
 }
+var expiry = new Date((new Date()).getTime() + 356 * 24 * 3600 * 1000); // 1 year
+function deleteCookie(name) {
+    document.cookie = name + "=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GM";
+}
+function setCookie(name, value) {
+    document.cookie = name + "=" + escape(value) + "; path=/; expires=" + expiry.toGMTString();
+}
+function getCookie(name) {
+    var cookieArr = document.cookie.split(";");
+    for (var i = 0; i < cookieArr.length; i++) {
+        var cookiePair = cookieArr[i].split("=");
+        if (name === cookiePair[0].trim()) {
+            return decodeURIComponent(cookiePair[1]);
+        }
+    }
+    return null;
+}
+function saveParametersInCookie() {
+    $("input").each(function () {
+        setCookie("img2gco_autofill_" + $(this).attr("name"), $(this).val());
+    });
+}
+function restoreParametersFromCookie() {
+    $("input").each(function () {
+        $content = getCookie("img2gco_autofill_" + $(this).attr("name"));
+        if ($content !== null) {
+            $(this).val($content);
+        }
+    });
+}
+function restoreDefaultParameters() {
+    $("input").each(function () {
+        deleteCookie("img2gco_autofill_" + $(this).attr("name"));
+    });
+    window.location.href = "index.php";
+}
 function generate(code) {
     var data = $("#parameters").serialize();
     $("#submit").prop("disabled", true);
@@ -52,15 +88,19 @@ function generate(code) {
 whRatio = 0;
 $().ready(function () {
     $("input").change(function () {
+        saveParametersInCookie();
         invalidate();
     });
     $("#sizeX").change(function () {
         $("#sizeY").val(Math.round($("#sizeX").val() / whRatio));
+        saveParametersInCookie();
         invalidate();
     });
     $("#sizeY").change(function () {
         $("#sizeX").val(Math.round($("#sizeY").val() * whRatio));
+        saveParametersInCookie();
         invalidate();
     });
+    restoreParametersFromCookie();
     $("#sizeX").val(Math.round($("#sizeY").val() * whRatio));
 });
