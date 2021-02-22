@@ -177,12 +177,6 @@ for ($line = $offsetY; $line < ($sizeY + $offsetY) && $lineIndex < $pixelsY; $li
                 $pixel += $direction * $resX;
             }
 
-            if ($laserPower <= $laserOff) {
-                // Quickly skip over sections without laser power
-                $writer->useFastMoves();
-            } else {
-                $writer->useLinearMoves();
-            }
             $writer->moveToX($pixel);
             $writer->laserPower($laserPower);
         }
