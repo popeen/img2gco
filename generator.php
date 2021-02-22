@@ -160,8 +160,8 @@ for ($line = $offsetY; $line < ($sizeY + $offsetY) && $lineIndex < $pixelsY; $li
         if (($direction == FORWARDS && $pixelIndex == $firstX)
                 || ($direction == BACKWARDS && $pixelIndex == $lastX)) {
             $writer->useLinearMoves();
-            $writer->moveTo($pixel - $direction * $overScan, $line);
             $writer->laserPower($laserOff);
+            $writer->moveTo($pixel - $direction * $overScan, $line);
             $writer->moveTo($pixel, $line);
         } else {
             // Skip similar pixels to reduce file size
@@ -177,8 +177,8 @@ for ($line = $offsetY; $line < ($sizeY + $offsetY) && $lineIndex < $pixelsY; $li
                 $pixel += $direction * $resX;
             }
 
-            $writer->moveToX($pixel);
             $writer->laserPower($laserPower);
+            $writer->moveToX($pixel);
         }
 
         $pixelIndex += $direction;

@@ -52,6 +52,7 @@ class GrblWriter extends Writer {
     const MOVE_LINEAR = 2;
     const MOVE_UNKNOWN = 3;
     private int $moveSpeed = self::MOVE_UNKNOWN;
+    private int $power = 0;
 
     public function header() {
         $this->comment("GRBL flavour");
@@ -68,7 +69,7 @@ class GrblWriter extends Writer {
     }
 
     public function laserPower(int $power) {
-        $this->println("S$power");
+        $this->power = $power;
     }
 
     public function useFastMoves() {
@@ -88,11 +89,11 @@ class GrblWriter extends Writer {
     }
 
     public function moveTo(float $x, float $y) {
-        $this->println("X" . round($x, 4) . " Y" . round($y, 4));
+        $this->println("X" . round($x, 4) . " Y" . round($y, 4) . " S" . $this->power);
     }
 
     public function moveToX(float $x) {
-        $this->println("X" . round($x, 4));
+        $this->println("X" . round($x, 4) . " S" . $this->power);
     }
 }
 
