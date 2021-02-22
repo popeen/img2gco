@@ -18,8 +18,8 @@ include("lib/upload.php");
         </script>
     </head>
     <body>
-        <h1>img2gco</h1>
         <div id="generateProgress"></div>
+        <h1>img2gco</h1>
         <?php
 
         if (isset($_SESSION["filename"])) {

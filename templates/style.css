@@ -69,10 +69,14 @@ img {
     height: 300px;
 }
 #generateProgress {
-    margin: 10px auto;
     display: none;
     text-align: center;
     background: #ffcccc;
     padding: 10px;
     width: 100px;
+    position: absolute;
+    margin-left: auto;
+    margin-right: auto;
+    left: 0;
+    right: 0;
 }
