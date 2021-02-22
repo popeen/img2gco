@@ -61,12 +61,17 @@ imagecopyresampled($tmp, $src, 0, 0, 0, 0, $pixelsX, $pixelsY, $w, $h);
 Image::flip($tmp);
 imagefilter($tmp,IMG_FILTER_GRAYSCALE);
 
+$filename = $_SESSION["filename"] . ".gcode";
+if ($_POST["code"] == "svg") {
+    $filename = $_SESSION["filename"] . ".svg";
+}
+
 if ($_POST["code"] == "reprap") {
-    $writer = new ReprapWriter();
+    $writer = new ReprapWriter($filename);
 } else if ($_POST["code"] == "grbl") {
-    $writer = new GrblWriter();
+    $writer = new GrblWriter($filename);
 } else if ($_POST["code"] == "svg") {
-    $writer = new SvgWriter();
+    $writer = new SvgWriter($filename);
 } else {
     exit("Unknown code flavour");
 }
@@ -190,8 +195,4 @@ $writer->laserOff();
 $writer->useFastMoves();
 $writer->moveTo(0, 0);
 
-$ext = ".gcode";
-if ($_POST["code"] == "svg") {
-    $ext = ".svg";
-}
-file_put_contents($_SESSION["filename"] . $ext, $writer->getGeneratedCode());
+$writer->close();

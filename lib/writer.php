@@ -1,20 +1,29 @@
 <?php
 
 abstract class Writer {
-    private string $generated = "";
+    private $fileHandle;
+
     protected string $travelRate = "";
     protected string $feedRate = "";
 
-    public function getGeneratedCode() {
-        return $this->generated;
+    public function __construct($filename) {
+        $this->fileHandle = fopen($filename, "w");
+    }
+
+    public function close() {
+        fclose($this->fileHandle);
+    }
+
+    protected function print(string $line) {
+        fwrite($this->fileHandle, $line);
     }
 
     protected function println(string $line) {
-        $this->generated .= $line . "\n";
+        fwrite($this->fileHandle, $line . "\n");
     }
 
     public function comment(string $comment) {
-        $this->generated .= ";" . $comment . "\n";
+        fwrite($this->fileHandle, ";" . $comment . "\n");
     }
 
     public function setTravelRate(string $rate) {
@@ -108,8 +117,21 @@ class SvgWriter extends Writer {
     private int $yMin = 1000;
     private int $xMax = -1000;
     private int $yMax = -1000;
+    private string $outputFilename;
+    private string $tempFilename;
 
-    private string $pathData = "";
+    public function __construct($filename) {
+        // Writing to a file is faster than appending to a string
+        // but we need to modify the beginning of the file for this svg preview.
+        // So, write to a temp file first.
+        $this->outputFilename = $filename;
+        $this->tempFilename = tempnam(sys_get_temp_dir(), 'gcode-svg');
+        parent::__construct($this->tempFilename);
+    }
+
+    public function comment(string $comment) {
+        // Ignore
+    }
 
     public function header() {
         $this->moveTo(0, 0);
@@ -132,7 +154,7 @@ class SvgWriter extends Writer {
 
     public function moveTo(float $x, float $y) {
         $x *= -1;
-        $this->pathData .= "M$x $y ";
+        $this->print("M$x $y ");
 
         $this->xMin = min($x, $this->xMin);
         $this->xMax = max($x, $this->xMax);
@@ -142,21 +164,26 @@ class SvgWriter extends Writer {
 
     public function moveToX(float $x) {
         $x *= -1;
-        $this->pathData .= "H$x ";
+        $this->print("H$x ");
         $this->xMin = min($x, $this->xMin);
         $this->xMax = max($x, $this->xMax);
     }
 
-    public function getGeneratedCode() {
+    public function close() {
+        parent::close();
+        $pathData = file_get_contents($this->tempFilename);
+        unlink($this->tempFilename);
+
         $width = ($this->xMax - $this->xMin) + 2;
         $height = ($this->yMax - $this->yMin) + 2;
-        return '<?xml version="1.0" encoding="UTF-8" standalone="no"?>'
+        $fullSvg = '<?xml version="1.0" encoding="UTF-8" standalone="no"?>'
                 . '<svg width="' . $width . '" height="' . $height . '" '
                 . 'viewBox="' . ($this->xMin - 1) . ' ' . ($this->yMin - 1) . ' ' . $width . ' ' . $height . '" '
                 . 'version="1.1" id="svg8" xmlns="http://www.w3.org/2000/svg">'
-                . '<path fill="transparent" stroke="black" d="' . $this->pathData . '"/>'
+                . '<path fill="transparent" stroke="black" d="' . $pathData . '"/>'
                 . '<circle cx="0" cy="0" r="0.5" fill="red"/>'
                 . "</svg>";
+        file_put_contents($this->outputFilename, $fullSvg);
     }
 
 }
