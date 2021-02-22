@@ -98,6 +98,7 @@ $writer->laserPower($laserOff);
 $writer->useFastMoves();
 $writer->moveTo($offsetX, $offsetY);
 
+$lastProgressUpdate = 0;
 $lineIndex = 0;
 define("BACKWARDS", -1);
 define("FORWARDS", 1);
@@ -183,9 +184,12 @@ for ($line = $offsetY; $line < ($sizeY + $offsetY) && $lineIndex < $pixelsY; $li
     $lineIndex++;
 
     // Show progress
-    echo round($lineIndex / $pixelsY * 100, 0) . "%\n";
-    ob_flush();
-    flush();
+    if ($lastProgressUpdate + 0.2 < microtime(true)) {
+        echo round($lineIndex / $pixelsY * 100, 0) . "%\n";
+        ob_flush();
+        flush();
+        $lastProgressUpdate = microtime(true);
+    }
 }
 
 imagedestroy($tmp);
