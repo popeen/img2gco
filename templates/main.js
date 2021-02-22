@@ -35,8 +35,11 @@ function generate(code) {
                 $("#generateProgress").text(lines[Math.max(0, lines.length - 2)]);
             }
         }, success: function (data) {
-            $("#generateProgress").text("");
-            $("#generateProgress").hide(200);
+            $("#generateProgress").text("100%");
+            $("#generateProgress").delay(1000).hide(200).queue(function () {
+                $("#generateProgress").text("");
+                $(this).dequeue();
+            });
             refreshPreview();
         }, error: function (jqXHR, textStatus, errorThrown) {
             $("#generateProgress").text("");
