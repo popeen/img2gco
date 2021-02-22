@@ -14,7 +14,8 @@
         <td>
             <?php
             if (file_exists($_SESSION["filename"] . ".svg")) {
-                echo "<img class='invalidate-on-param-change' src='" . $_SESSION["filename"] . ".svg?refresh=". (new DateTime())->getTimestamp() . "' />";
+                $timestamp = filemtime($_SESSION["filename"] . ".svg");
+                echo "<img class='invalidate-on-param-change' src='" . $_SESSION["filename"] . ".svg?refresh=$timestamp' />";
             }
             ?>
             <a href='javascript:generate("svg")' class="button">Generate preview</a>
