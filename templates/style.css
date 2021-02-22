@@ -1,0 +1,78 @@
+* {
+    font-family: sans-serif;
+    box-sizing: border-box;
+}
+body {
+    max-width: 1000px;
+    margin: auto;
+    padding: 10px 0px;
+}
+/* Title */
+table.params td:nth-child(1) {
+    font-weight: bold;
+    width: 300px;
+}
+/* Explanation */
+table.params td:nth-child(3) {
+    color: #777;
+    font-size: smaller;
+}
+td {
+    padding: 2px;
+    margin: 0px;
+}
+table.params tr:nth-child(odd) {
+    background: #f2f2f2;
+}
+table {
+    border-spacing: 0px;
+}
+p {
+    background: #f2f2f2;
+    padding: 5px;
+    margin-bottom: 5px;
+}
+input[type = submit], .button {
+    color: #fff;
+    background: #cc3300;
+    border: none;
+    padding: 10px 50px;
+    margin: auto;
+    margin-top: 5px;
+    display: block;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+}
+input[type = submit]:hover, .button:hover {
+    background: #990000;
+}
+input[type = submit]:disabled {
+    background: #ccc;
+    cursor: default;
+}
+td input {
+    width: 200px;
+}
+td input.half {
+    width: 75px;
+}
+td span.halfLabel {
+    margin-left: 5px;
+    width: 18px;
+    display: inline-block;
+}
+td [type = radio] {
+    width: auto;
+}
+img {
+    height: 300px;
+}
+#generateProgress {
+    margin: 10px auto;
+    display: none;
+    text-align: center;
+    background: #ffcccc;
+    padding: 10px;
+    width: 100px;
+}
