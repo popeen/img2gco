@@ -143,8 +143,8 @@ for ($line = $offsetY; $line < ($sizeY + $offsetY) && $lineIndex < $pixelsY; $li
         $pixel = $offsetX + $lastX * $resX;
     }
 
-    while (($direction == BACKWARDS && $pixel >= $offsetX)
-            || ($direction == FORWARDS && $pixel < ($sizeX + $offsetX))) {
+    while (($direction == BACKWARDS && $pixel >= $offsetX && $pixelIndex > $firstX)
+            || ($direction == FORWARDS && $pixel < ($sizeX + $offsetX) && $pixelIndex < $lastX)) {
         $rgb = imagecolorat($tmp, $pixelIndex, $lineIndex);
         $value = ($rgb >> 16) & 0xFF;
         $laserPower = round(map($value, 255, 0, $laserMin, $laserMax), 0);
