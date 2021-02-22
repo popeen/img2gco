@@ -145,14 +145,6 @@ for ($line = $offsetY; $line < ($sizeY + $offsetY) && $lineIndex < $pixelsY; $li
 
     while (($direction == BACKWARDS && $pixel >= $offsetX)
             || ($direction == FORWARDS && $pixel < ($sizeX + $offsetX))) {
-        if ($direction == FORWARDS && $pixelIndex == $lastX) {
-            $direction = BACKWARDS;
-            break;
-        } else if($direction == BACKWARDS && $pixelIndex == $firstX) {
-            $direction = FORWARDS;
-            break;
-        }
-
         $rgb = imagecolorat($tmp, $pixelIndex, $lineIndex);
         $value = ($rgb >> 16) & 0xFF;
         $laserPower = round(map($value, 255, 0, $laserMin, $laserMax), 0);
@@ -189,6 +181,7 @@ for ($line = $offsetY; $line < ($sizeY + $offsetY) && $lineIndex < $pixelsY; $li
         $writer->laserPower($laserOff);
     }
     $lineIndex++;
+    $direction = -$direction;
 
     // Show progress
     if ($lastProgressUpdate + 0.2 < microtime(true)) {
