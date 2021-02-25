@@ -137,7 +137,7 @@ for ($line = $offsetY; $line < ($sizeY + $offsetY) && $lineIndex < $pixelsY; $li
             $writer->useLinearMoves();
             $writer->laserPower($laserOff);
             $writer->moveTo($pixel - $direction * $overScan, -$line);
-            $writer->moveTo($pixel, -$line);
+            $writer->moveToX($pixel);
         } else {
             // Skip similar pixels to reduce file size
             while (($direction == BACKWARDS && $pixel + $direction * $resX >= $offsetX && $pixelIndex > $firstX + 1)
@@ -145,7 +145,7 @@ for ($line = $offsetY; $line < ($sizeY + $offsetY) && $lineIndex < $pixelsY; $li
                 $rgb = imagecolorat($tmp, $pixelIndex, $lineIndex);
                 $value = ($rgb >> 16) & 0xFF;
                 $nextPixelLaserPower = round(map($value, 255, 0, $laserMin, $laserMax), 0);
-                if (abs($nextPixelLaserPower - $laserPower) >= 3) {
+                if (abs($nextPixelLaserPower - $laserPower) >= 5) {
                     break; // Pixels are too different, should generate a move command now.
                 }
                 $pixelIndex += $direction;
