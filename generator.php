@@ -1,7 +1,6 @@
 <?php
 session_start();
 include("lib/writer.php");
-include("lib/image.php");
 
 function map($value, $fromLow, $fromHigh, $toLow, $toHigh) {
     $fromRange = $fromHigh - $fromLow;
@@ -60,7 +59,6 @@ $tmp = imagecreatetruecolor($pixelsX, $pixelsY);
 $white = imagecolorallocate($tmp, 255, 255, 255);
 imagefilledrectangle($tmp, 0, 0, $w, $h, $white); // Interpret transparency as white
 imagecopyresampled($tmp, $src, 0, 0, 0, 0, $pixelsX, $pixelsY, $w, $h);
-Image::flip($tmp);
 imagefilter($tmp,IMG_FILTER_GRAYSCALE);
 
 $filename = $_SESSION["filename"] . ".gcode";
@@ -155,8 +153,8 @@ for ($line = $offsetY; $line < ($sizeY + $offsetY) && $lineIndex < $pixelsY; $li
                 || ($direction == BACKWARDS && $pixelIndex == $lastX)) {
             $writer->useLinearMoves();
             $writer->laserPower($laserOff);
-            $writer->moveTo($pixel - $direction * $overScan, $line);
-            $writer->moveTo($pixel, $line);
+            $writer->moveTo($pixel - $direction * $overScan, -$line);
+            $writer->moveTo($pixel, -$line);
         } else {
             // Skip similar pixels to reduce file size
             while (($direction == BACKWARDS && $pixel + $direction * $resX >= $offsetX && $pixelIndex > $firstX + 1)
