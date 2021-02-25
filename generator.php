@@ -1,6 +1,5 @@
 <?php
 session_start();
-include("lib/image.php");
 include("lib/writer.php");
 
 function map($value, $fromLow, $fromHigh, $toLow, $toHigh) {
@@ -18,7 +17,7 @@ function map($value, $fromLow, $fromHigh, $toLow, $toHigh) {
 
 set_time_limit(300);
 
-$sourceImagePath = $_SESSION["filename"] . "." . $_SESSION["ext"];
+$sourceImagePath = $_SESSION["filename"] . ".png";
 list($w, $h) = getimagesize($sourceImagePath);
 
 if(!isset($_POST['sizeY']) || $_POST['sizeY'] == 0) {
@@ -41,12 +40,9 @@ $resX=$_POST['resX'];
 $pixelsX = round($sizeX/$resX);
 $pixelsY = round($sizeY/$scanGap);
 
-$src = imagecreatefromfile($sourceImagePath);
+$src = imagecreatefrompng($sourceImagePath);
 $tmp = imagecreatetruecolor($pixelsX, $pixelsY);
-$white = imagecolorallocate($tmp, 255, 255, 255);
-imagefilledrectangle($tmp, 0, 0, $w, $h, $white); // Interpret transparency as white
 imagecopyresampled($tmp, $src, 0, 0, 0, 0, $pixelsX, $pixelsY, $w, $h);
-imagefilter($tmp,IMG_FILTER_GRAYSCALE);
 
 $filename = $_SESSION["filename"] . ".ngc";
 if ($_POST["code"] == "svg") {

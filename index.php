@@ -1,6 +1,5 @@
 <?php
 session_start();
-include("lib/image.php");
 include("lib/upload.php");
 ?><html>
     <head>
@@ -11,8 +10,10 @@ include("lib/upload.php");
         <script>
             <?php
             if (isset($_SESSION["filename"])) {
-                $sourceImagePath = $_SESSION["filename"] . "." . $_SESSION["ext"];
+                $sourceImagePath = $_SESSION["filename"] . ".png";
                 list($w, $h) = getimagesize($sourceImagePath);
+                $w = max(1, $w);
+                $h = max(1, $h);
                 echo "var whRatio = " . ($w/$h);
             }
             ?>

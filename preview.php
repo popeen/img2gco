@@ -10,8 +10,8 @@
     <tr id="previews">
         <td>
             <?php
-            $timestamp = filemtime($_SESSION["filename"] . "." . $_SESSION["ext"]);
-            echo "<img src='" . $_SESSION["filename"] . "." . $_SESSION["ext"] . "?refresh=$timestamp' />";
+            $timestamp = filemtime($_SESSION["filename"] . ".png");
+            echo "<img src='" . $_SESSION["filename"] . ".png?refresh=$timestamp' />";
             ?>
         </td>
         <td>
