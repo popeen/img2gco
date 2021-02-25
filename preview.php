@@ -9,13 +9,18 @@
     </tr>
     <tr id="previews">
         <td>
-            <img src="<?php echo $_SESSION["filename"] . "." . $_SESSION["ext"] ?>" />
+            <?php
+            $timestamp = filemtime($_SESSION["filename"] . "." . $_SESSION["ext"]);
+            echo "<img src='" . $_SESSION["filename"] . "." . $_SESSION["ext"] . "?refresh=$timestamp' />";
+            ?>
         </td>
         <td>
             <?php
             if (file_exists($_SESSION["filename"] . ".svg")) {
                 $timestamp = filemtime($_SESSION["filename"] . ".svg");
                 echo "<img class='invalidate-on-param-change' src='" . $_SESSION["filename"] . ".svg?refresh=$timestamp' />";
+            } else {
+                echo "No preview generated yet.";
             }
             ?>
         </td>
