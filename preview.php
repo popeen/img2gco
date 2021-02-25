@@ -31,14 +31,15 @@
     </tr>
     <tr id="buttons">
         <td>
+            <a href='index.php?do=rotate' class="button">↴ Rotate</a>
             <a href='index.php?do=clearImage' class="button">✗ Select other image</a>
         </td>
         <td>
-            <a href='javascript:generate("svg")' class="button">Generate preview</a>
+            <a href='javascript:generate("svg")' class="button">⚙ Generate preview</a>
         </td>
         <td>
-            <a href='javascript:generate("reprap")' class="button">Generate reprap gcode</a>
-            <a href='javascript:generate("grbl")' class="button">Generate grbl gcode</a>
+            <a href='javascript:generate("reprap")' class="button">⚙ Generate reprap gcode</a>
+            <a href='javascript:generate("grbl")' class="button">⚙ Generate grbl gcode</a>
         </td>
     </tr>
 </table>

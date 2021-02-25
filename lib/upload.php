@@ -51,4 +51,11 @@ if (isset($_FILES['image']['name'])) {
 } else if (@$_GET["do"] == "invalidate") {
     @unlink($_SESSION["filename"] . ".gcode");
     @unlink($_SESSION["filename"] . ".svg");
+} else if (@$_GET["do"] == "rotate") {
+    $img = imagecreatefromfile($_SESSION["filename"] . "." . $_SESSION["ext"]);
+    $img = imagerotate($img, -90, imagecolorallocatealpha($img, 255, 255, 255, 0));
+    $_SESSION["ext"] = "png";
+    imagepng($img, $_SESSION["filename"] . "." . $_SESSION["ext"]);
+    header("Location: index.php"); // Don't rotate again when pressing F5
+    exit();
 }

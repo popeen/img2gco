@@ -1,5 +1,6 @@
 <?php
 session_start();
+include("lib/image.php");
 include("lib/writer.php");
 
 function map($value, $fromLow, $fromHigh, $toLow, $toHigh) {
@@ -40,21 +41,7 @@ $resX=$_POST['resX'];
 $pixelsX = round($sizeX/$resX);
 $pixelsY = round($sizeY/$scanGap);
 
-switch ($_SESSION["ext"]) {
-    case "gif":
-        $src = imagecreatefromgif($sourceImagePath);
-        break;
-    case "jpg":
-        $src = imagecreatefromjpeg($sourceImagePath);
-        break;
-    case "png":
-        $src = imagecreatefrompng($sourceImagePath);
-        break;
-    default:
-        exit("Unknown image type");
-        break;
-}
-
+$src = imagecreatefromfile($sourceImagePath);
 $tmp = imagecreatetruecolor($pixelsX, $pixelsY);
 $white = imagecolorallocate($tmp, 255, 255, 255);
 imagefilledrectangle($tmp, 0, 0, $w, $h, $white); // Interpret transparency as white

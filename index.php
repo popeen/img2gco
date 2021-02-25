@@ -1,5 +1,6 @@
 <?php
 session_start();
+include("lib/image.php");
 include("lib/upload.php");
 ?><html>
     <head>
