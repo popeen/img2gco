@@ -5,7 +5,7 @@
 body {
     max-width: 1000px;
     margin: auto;
-    padding: 10px 0px;
+    padding: 10px;
 }
 /* Title */
 table.params td:nth-child(1) {

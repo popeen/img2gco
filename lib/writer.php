@@ -154,7 +154,7 @@ class SvgWriter extends Writer {
     }
 
     public function moveTo(float $x, float $y) {
-        $x *= -1;
+        $y *= -1;
         $this->print("M$x $y ");
 
         $this->xMin = min($x, $this->xMin);
@@ -164,7 +164,6 @@ class SvgWriter extends Writer {
     }
 
     public function moveToX(float $x) {
-        $x *= -1;
         $this->print("H$x ");
         $this->xMin = min($x, $this->xMin);
         $this->xMax = max($x, $this->xMax);
@@ -175,14 +174,22 @@ class SvgWriter extends Writer {
         $pathData = file_get_contents($this->tempFilename);
         unlink($this->tempFilename);
 
+        $originRadius = max(($this->xMax - $this->xMin), ($this->yMax - $this->yMin)) * 0.05;
+        $this->xMin = min(-$originRadius, $this->xMin);
+        $this->xMax = max($originRadius, $this->xMax);
+        $this->yMin = min(-$originRadius, $this->yMin);
+        $this->yMax = max($originRadius, $this->yMax);
+
         $width = ($this->xMax - $this->xMin) + 2;
         $height = ($this->yMax - $this->yMin) + 2;
+
         $fullSvg = '<?xml version="1.0" encoding="UTF-8" standalone="no"?>'
                 . '<svg width="' . $width . '" height="' . $height . '" '
                 . 'viewBox="' . ($this->xMin - 1) . ' ' . ($this->yMin - 1) . ' ' . $width . ' ' . $height . '" '
                 . 'version="1.1" id="svg8" xmlns="http://www.w3.org/2000/svg">'
                 . '<path fill="transparent" stroke="black" d="' . $pathData . '"/>'
-                . '<circle cx="0" cy="0" r="0.5" fill="red"/>'
+                . '<path fill="transparent" stroke="#cc3300" d="M-' . $originRadius . ' 0 H' . $originRadius . '" stroke-width="' . ($originRadius / 4) . '" />'
+                . '<path fill="transparent" stroke="#cc3300" d="M0 -' . $originRadius . ' V' . $originRadius . '" stroke-width="' . ($originRadius / 4) . '" />'
                 . "</svg>";
         file_put_contents($this->outputFilename, $fullSvg);
     }
