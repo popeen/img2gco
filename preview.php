@@ -2,14 +2,14 @@
 @session_start();
 ?>
 <table>
-    <tr>
+    <tr id="headings">
         <td>Input image</td>
         <td>Preview</td>
         <td>Gcode</td>
     </tr>
-    <tr>
+    <tr id="previews">
         <td>
-            <img src="<?php echo $_SESSION["filename"] . "." . $_SESSION["ext"] ?>" style="background:#222;" />
+            <img src="<?php echo $_SESSION["filename"] . "." . $_SESSION["ext"] ?>" />
         </td>
         <td>
             <?php
@@ -18,7 +18,6 @@
                 echo "<img class='invalidate-on-param-change' src='" . $_SESSION["filename"] . ".svg?refresh=$timestamp' />";
             }
             ?>
-            <a href='javascript:generate("svg")' class="button">Generate preview</a>
         </td>
         <td>
             <?php
@@ -28,11 +27,18 @@
                 echo "No gcode generated yet.";
             }
             ?>
-            <br />
-            <br />
+        </td>
+    </tr>
+    <tr id="buttons">
+        <td>
+            <a href='index.php?do=clearImage' class="button">✗ Select other image</a>
+        </td>
+        <td>
+            <a href='javascript:generate("svg")' class="button">Generate preview</a>
+        </td>
+        <td>
             <a href='javascript:generate("reprap")' class="button">Generate reprap gcode</a>
             <a href='javascript:generate("grbl")' class="button">Generate grbl gcode</a>
-            <a href='index.php?do=clearImage' class="button">✗ Select other image</a>
         </td>
     </tr>
 </table>

@@ -17,9 +17,22 @@ table.params td:nth-child(3) {
     color: #777;
     font-size: smaller;
 }
+table {
+    width: 100%;
+}
 td {
     padding: 2px;
     margin: 0px;
+}
+tr#buttons td {
+    vertical-align: top;
+}
+tr#previews td {
+    text-align: center;
+}
+tr#headings td {
+    font-weight: bold;
+    text-align: center;
 }
 table.params tr:nth-child(odd) {
     background: #f2f2f2;

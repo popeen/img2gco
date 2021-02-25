@@ -57,6 +57,8 @@ switch ($_SESSION["ext"]) {
 }
 
 $tmp = imagecreatetruecolor($pixelsX, $pixelsY);
+$white = imagecolorallocate($tmp, 255, 255, 255);
+imagefilledrectangle($tmp, 0, 0, $w, $h, $white); // Interpret transparency as white
 imagecopyresampled($tmp, $src, 0, 0, 0, 0, $pixelsX, $pixelsY, $w, $h);
 Image::flip($tmp);
 imagefilter($tmp,IMG_FILTER_GRAYSCALE);
