@@ -48,7 +48,7 @@ imagefilledrectangle($tmp, 0, 0, $w, $h, $white); // Interpret transparency as w
 imagecopyresampled($tmp, $src, 0, 0, 0, 0, $pixelsX, $pixelsY, $w, $h);
 imagefilter($tmp,IMG_FILTER_GRAYSCALE);
 
-$filename = $_SESSION["filename"] . ".gcode";
+$filename = $_SESSION["filename"] . ".ngc";
 if ($_POST["code"] == "svg") {
     $filename = $_SESSION["filename"] . ".svg";
 }

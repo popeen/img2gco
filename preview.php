@@ -21,8 +21,8 @@
         </td>
         <td>
             <?php
-            if (file_exists($_SESSION["filename"] . ".gcode")) {
-                echo "<a class='button invalidate-on-param-change' href='" . $_SESSION["filename"] . ".gcode' target='_blank' download>✓ Download gcode</a>";
+            if (file_exists($_SESSION["filename"] . ".ngc")) {
+                echo "<a class='button invalidate-on-param-change' href='" . $_SESSION["filename"] . ".ngc' target='_blank' download>✓ Download gcode</a>";
             } else {
                 echo "No gcode generated yet.";
             }
