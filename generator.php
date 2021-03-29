@@ -44,29 +44,21 @@ $src = imagecreatefrompng($sourceImagePath);
 $tmp = imagecreatetruecolor($pixelsX, $pixelsY);
 imagecopyresampled($tmp, $src, 0, 0, 0, 0, $pixelsX, $pixelsY, $w, $h);
 
-$filename = $_SESSION["filename"] . ".ngc";
-if ($_POST["code"] == "svg") {
-    $filename = $_SESSION["filename"] . ".svg";
-}
-
 if ($_POST["code"] == "reprap") {
-    $writer = new ReprapWriter($filename);
+    $codeWriter = new ReprapWriter($_SESSION["filename"] . ".ngc");
 } else if ($_POST["code"] == "grbl") {
-    $writer = new GrblWriter($filename);
-} else if ($_POST["code"] == "svg") {
-    $writer = new SvgWriter($filename);
+    $codeWriter = new GrblWriter($_SESSION["filename"] . ".ngc");
 } else {
     exit("Unknown code flavour");
 }
+$previewWriter = new SvgWriter($_SESSION["filename"] . ".svg");
+$durationEstimateWriter = new DurationEstimateWriter($_SESSION["filename"] . ".duration");
 
-$writer->comment("Created using Nebarnix's IMG2GCO program Ver 1.0");
-$writer->comment("http://nebarnix.com 2015");
-$writer->comment("");
+$writer = new MultiWriter($codeWriter, $previewWriter, $durationEstimateWriter);
+
 $writer->comment("Size in pixels X=$pixelsX, Y=$pixelsY");
-
-$cmdRate = round(($_POST['feedRate'] / $resX) * 2 / 60);
 $writer->comment("Size in mm X=" . round($sizeX, 2) . ", Y=" . round($sizeY, 2));
-$writer->comment("Speed is " . $_POST['feedRate'] . " mm/min, $resX mm/pix => $cmdRate lines/sec");
+$writer->comment("Speed is " . $_POST['feedRate'] . " mm/min, $resX mm/pix");
 $writer->comment("Power is $laserMin to $laserMax (". round($laserMin/255*100, 1) ."%-". round($laserMax/255*100, 1) ."%)");
 $writer->comment("");
 

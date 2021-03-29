@@ -50,14 +50,19 @@ if (isset($_FILES['image']['name'])) {
     @unlink($_SESSION["filename"] . "." . $_SESSION["ext"]);
     @unlink($_SESSION["filename"] . ".ngc");
     @unlink($_SESSION["filename"] . ".svg");
+    @unlink($_SESSION["filename"] . ".duration");
     unset($_SESSION["filename"]);
 } else if (@$_GET["do"] == "invalidate") {
     @unlink($_SESSION["filename"] . ".ngc");
     @unlink($_SESSION["filename"] . ".svg");
+    @unlink($_SESSION["filename"] . ".duration");
 } else if (@$_GET["do"] == "rotate") {
     $img = imagecreatefrompng($_SESSION["filename"] . ".png");
     $img = imagerotate($img, -90, imagecolorallocate($img, 255, 255, 255));
     imagepng($img, $_SESSION["filename"] . ".png");
+    @unlink($_SESSION["filename"] . ".ngc");
+    @unlink($_SESSION["filename"] . ".svg");
+    @unlink($_SESSION["filename"] . ".duration");
     header("Location: index.php"); // Don't rotate again when pressing F5
     exit();
 }

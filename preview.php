@@ -4,7 +4,6 @@
 <table>
     <tr id="headings">
         <td>Input image</td>
-        <td>Preview</td>
         <td>Gcode</td>
     </tr>
     <tr id="previews">
@@ -16,17 +15,14 @@
         </td>
         <td>
             <?php
-            if (file_exists($_SESSION["filename"] . ".svg")) {
-                $timestamp = filemtime($_SESSION["filename"] . ".svg");
-                echo "<img class='invalidate-on-param-change' src='" . $_SESSION["filename"] . ".svg?refresh=$timestamp' />";
-            } else {
-                echo "No preview generated yet.";
-            }
-            ?>
-        </td>
-        <td>
-            <?php
             if (file_exists($_SESSION["filename"] . ".ngc")) {
+                $timestamp = filemtime($_SESSION["filename"] . ".svg");
+                echo "<img class='invalidate-on-param-change' src='" . $_SESSION["filename"] . ".svg?refresh=$timestamp' /><br/>";
+
+                $durationSeconds = file_get_contents($_SESSION["filename"] . ".duration");
+                $duration = sprintf("%02d:%02d:%02d", floor($durationSeconds/3600), ($durationSeconds/60)%60, $durationSeconds%60);
+                echo "<span class='invalidate-on-param-change'>Estimated machining time: $duration</span><br/>";
+
                 echo "<a class='button invalidate-on-param-change' href='" . $_SESSION["filename"] . ".ngc' target='_blank' download>✓ Download gcode</a>";
             } else {
                 echo "No gcode generated yet.";
@@ -38,9 +34,6 @@
         <td>
             <a href='index.php?do=rotate' class="button">↴ Rotate</a>
             <a href='index.php?do=clearImage' class="button">✗ Select other image</a>
-        </td>
-        <td>
-            <a href='javascript:generate("svg")' class="button">⚙ Generate preview</a>
         </td>
         <td>
             <a href='javascript:generate("reprap")' class="button">⚙ Generate reprap gcode</a>

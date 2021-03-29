@@ -47,6 +47,98 @@ abstract class Writer {
     public abstract function moveToX(float $x);
 }
 
+class MultiWriter extends Writer {
+    private $writers;
+
+    public function __construct(...$children) {
+        $this->writers = $children;
+    }
+
+    public function close() {
+        foreach ($this->writers as $writer) {
+            $writer->close();
+        }
+    }
+
+    protected function print(string $line) {
+        foreach ($this->writers as $writer) {
+            $writer->print($line);
+        }
+    }
+
+    protected function println(string $line) {
+        foreach ($this->writers as $writer) {
+            $writer->println($line);
+        }
+    }
+
+    public function comment(string $comment) {
+        foreach ($this->writers as $writer) {
+            $writer->comment($comment);
+        }
+    }
+
+    public function setTravelRate(string $rate) {
+        foreach ($this->writers as $writer) {
+            $writer->setTravelRate($rate);
+        }
+    }
+
+    public function setFeedRate(string $rate) {
+        foreach ($this->writers as $writer) {
+            $writer->setFeedRate($rate);
+        }
+    }
+
+    public function header() {
+        foreach ($this->writers as $writer) {
+            $writer->header($writer);
+        }
+    }
+
+    public function laserOn() {
+        foreach ($this->writers as $writer) {
+            $writer->laserOn();
+        }
+    }
+
+    public function laserOff() {
+        foreach ($this->writers as $writer) {
+            $writer->laserOff();
+        }
+    }
+
+    public function laserPower(int $power) {
+        foreach ($this->writers as $writer) {
+            $writer->laserPower($power);
+        }
+    }
+
+    public function useFastMoves() {
+        foreach ($this->writers as $writer) {
+            $writer->useFastMoves($writer);
+        }
+    }
+
+    public function useLinearMoves() {
+        foreach ($this->writers as $writer) {
+            $writer->useLinearMoves($writer);
+        }
+    }
+
+    public function moveTo(float $x, float $y) {
+        foreach ($this->writers as $writer) {
+            $writer->moveTo($x, $y);
+        }
+    }
+
+    public function moveToX(float $x) {
+        foreach ($this->writers as $writer) {
+            $writer->moveToX($x);
+        }
+    }
+}
+
 class GrblWriter extends Writer {
     const MOVE_FAST = 1;
     const MOVE_LINEAR = 2;
@@ -193,5 +285,55 @@ class SvgWriter extends Writer {
                 . "</svg>";
         file_put_contents($this->outputFilename, $fullSvg);
     }
+}
 
+
+class DurationEstimateWriter extends Writer {
+    private float $durationMinutes = 0;
+    private float $currentFeed = 1;
+    private float $lastX = 0;
+    private float $lastY = 0;
+
+    public function comment(string $comment) {
+        // Ignore
+    }
+
+    public function header() {
+    }
+
+    public function laserOn() {
+    }
+
+    public function laserOff() {
+    }
+
+    public function laserPower(int $power) {
+    }
+
+    public function useFastMoves() {
+        $this->currentFeed = $this->travelRate;
+    }
+
+    public function useLinearMoves() {
+        $this->currentFeed = $this->feedRate;
+    }
+
+    public function moveTo(float $x, float $y) {
+        $dX = abs($x - $this->lastX);
+        $dY = abs($y - $this->lastY);
+        $distance = sqrt($dX * $dX + $dY * $dY);
+        echo "$distance\n";
+        $this->durationMinutes += $distance / $this->currentFeed;
+        $this->lastX = $x;
+        $this->lastY = $y;
+    }
+
+    public function moveToX(float $x) {
+        $this->moveTo($x, $this->lastY);
+    }
+
+    public function close() {
+        $this->print(round(60 * $this->durationMinutes));
+        parent::close();
+    }
 }
