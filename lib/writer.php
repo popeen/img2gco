@@ -322,7 +322,6 @@ class DurationEstimateWriter extends Writer {
         $dX = abs($x - $this->lastX);
         $dY = abs($y - $this->lastY);
         $distance = sqrt($dX * $dX + $dY * $dY);
-        echo "$distance\n";
         $this->durationMinutes += $distance / $this->currentFeed;
         $this->lastX = $x;
         $this->lastY = $y;

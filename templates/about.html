@@ -1,13 +1,21 @@
 <p>
-    <b>About this tool:</b>
-    This tool was created because I could not find any useable image to gcode converters suitable for lasers based on grbl.
-    <a href="http://wiki.nebarnix.com/wiki/Img2gco">Full Documentation</a>
+    <b>About</b><br />
+    This tool can convert an image to a gcode file for use with a laser engraver.
 </p>
 <p>
-    <b>A note on commands per second:</b>
-    My grbl can handle quite a lot of commands per so that I can run at least 330 commands per second over USB.
-    This strongly depends on the gCode sender which is system speed dependant if not pulled from an SD card.
-    Please don't do anything major on your system while an image is engraved.
+    <b>Commands per second</b><br />
+    This tool generates gcode files with quite many commands per second.
+    The number of commands per second that your system can handle strongly depends on the gCode sender.
     It can leave ugly marks on your piece when the laser head suddenly stalls because it waits
     for the next command and the buffer ran empty. This is also a possible cause for fire!
+</p>
+<p>
+    <b>License</b><br />
+    This tool is licensed under the <a href="https://github.com/ByteHamster/img2gco/blob/master/LICENSE">General Public License</a>.
+    You can find the source code on <a href="https://github.com/ByteHamster/img2gco/">GitHub</a>.<br />
+    <br />
+    The copyright holders and/or other parties provide the program "as is" without warranty
+    of any kind.  The entire risk as to the quality and performance of the program
+    is with you.  Should the program prove defective, you assume the cost of
+    all necessary servicing, repair or correction.
 </p>
