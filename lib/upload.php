@@ -16,6 +16,10 @@ function cleanupOldUploads() {
     closedir($handle);
 }
 
+if (!is_dir("uploads")) {
+    mkdir("uploads");
+}
+
 if (isset($_FILES['image']['name'])) {
     cleanupOldUploads();
 
