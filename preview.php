@@ -3,10 +3,17 @@
 ?>
 <table>
     <tr id="headings">
+		<td></td>
         <td>Input image</td>
         <td>Gcode</td>
     </tr>
     <tr id="previews">
+		<td>
+		
+            <a href='index.php?do=rotate' class="button">↴ Rotate</a>
+				<a href='index.php?do=flipH' class="button">↴ Flip Horizontal</a>
+				<a href='index.php?do=flipV' class="button">↴ Flip Vertical</a>
+		</td>
         <td>
             <?php
             $timestamp = filemtime($_SESSION["filename"] . ".png");
@@ -31,10 +38,9 @@
         </td>
     </tr>
     <tr id="buttons">
+		<td></td>
         <td>
-            <a href='index.php?do=rotate' class="button">↴ Rotate</a>
-            <a href='index.php?do=flipH' class="button">↴ Flip Horizontal</a>
-            <a href='index.php?do=flipV' class="button half">↴ Flip Vertical</a>
+            <a href='index.php?do=clearImage' class="button">✗ Select other image</a>
         </td>
         <td>
             <a href='javascript:generate("reprap")' class="button">⚙ Generate reprap gcode</a>
