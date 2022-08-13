@@ -33,7 +33,8 @@
     <tr id="buttons">
         <td>
             <a href='index.php?do=rotate' class="button">↴ Rotate</a>
-            <a href='index.php?do=clearImage' class="button">✗ Select other image</a>
+            <a href='index.php?do=flipH' class="button">↴ Flip Horizontal</a>
+            <a href='index.php?do=flipV' class="button half">↴ Flip Vertical</a>
         </td>
         <td>
             <a href='javascript:generate("reprap")' class="button">⚙ Generate reprap gcode</a>

@@ -69,4 +69,23 @@ if (isset($_FILES['image']['name'])) {
     @unlink($_SESSION["filename"] . ".duration");
     header("Location: index.php"); // Don't rotate again when pressing F5
     exit();
+} else if (@$_GET["do"] == "flipH") {
+    $img = imagecreatefrompng($_SESSION["filename"] . ".png");
+    imageflip($img, IMG_FLIP_HORIZONTAL);
+    imagepng($img, $_SESSION["filename"] . ".png");
+    @unlink($_SESSION["filename"] . ".ngc");
+    @unlink($_SESSION["filename"] . ".svg");
+    @unlink($_SESSION["filename"] . ".duration");
+    header("Location: index.php"); // Don't flip again when pressing F5
+    exit();
+} else if (@$_GET["do"] == "flipV") {
+    $img = imagecreatefrompng($_SESSION["filename"] . ".png");
+    imageflip($img, IMG_FLIP_HORIZONTAL);
+    imagepng($img, $_SESSION["filename"] . ".png");
+    @unlink($_SESSION["filename"] . ".ngc");
+    @unlink($_SESSION["filename"] . ".svg");
+    @unlink($_SESSION["filename"] . ".duration");
+    header("Location: index.php"); // Don't flip again when pressing F5
+    exit();
 }
+
