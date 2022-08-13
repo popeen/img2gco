@@ -80,7 +80,7 @@ if (isset($_FILES['image']['name'])) {
     exit();
 } else if (@$_GET["do"] == "flipV") {
     $img = imagecreatefrompng($_SESSION["filename"] . ".png");
-    imageflip($img, IMG_FLIP_HORIZONTAL);
+    imageflip($img, IMG_FLIP_VERTICAL);
     imagepng($img, $_SESSION["filename"] . ".png");
     @unlink($_SESSION["filename"] . ".ngc");
     @unlink($_SESSION["filename"] . ".svg");
